@@ -4,7 +4,7 @@ title:      Lambda Calculus - Boolean logic.
 subtitle:   "How to implement boolean logic."
 date:       2017-10-08 00:00:00
 categories: [development, theory]
-tags:       [Clojure]
+tags:       [Lambda Calculus, Clojure]
 
 author:
   name:  Bruno Bonacci
@@ -30,9 +30,9 @@ only way to simulate something similar is to encode the jump location
 into a map.  Therefore my solution was something like:
 
 ``` clojure
-(defmacro IF [test t f]
-    `(({true  (fn [] ~t)
-        false (fn [] ~f)} (boolean ~test))))
+   (defmacro IF [test t f]
+       `(({true  (fn [] ~t)
+           false (fn [] ~f)} (boolean ~test))))
 ```
 
 In other words:
@@ -51,14 +51,14 @@ In other words:
 You can use this macro pretty much like the `clojure.core/if`.
 
 ``` clojure
-(IF (= 0 1) "OK" "KO")
-;;=> "KO"
+   (IF (= 0 1) "OK" "KO")
+   ;;=> "KO"
 
-(IF true "OK" "KO")
-;;=> "OK"
+   (IF true "OK" "KO")
+   ;;=> "OK"
 
-(IF false "OK" "KO")
-;;=> "KO"
+   (IF false "OK" "KO")
+   ;;=> "KO"
 ```
 
 Although this works, I wasn't too happy with the solution. I thought
@@ -72,19 +72,19 @@ elements.
 The *Lambda Calculus* defines the following elements:
 
 ``` clojure
-   (λx. M)
-;;   |  \-> body
-;;   \----> variable
+      (λx. M)
+   ;;   |  \-> body
+   ;;   \----> variable
 ```
 
 For example a `λ-abstraction` (or `λ-expression`) which increments a
 number by one would be defined as:
 
 ``` clojure
-   (λx. x + 1)
-;;   |  ----
-;;   |  \-> body
-;;   \----> variable
+      (λx. x + 1)
+   ;;   |  ----
+   ;;   |  \-> body
+   ;;   \----> variable
 ```
 
 Every time the `λ-expression` is applied to an argument the expression
@@ -120,7 +120,7 @@ its definition.
    (λxy. x + y)
 ```
 
-## Boolean logic.
+### Boolean logic.
 
 First we define `TRUE` as a `λ-expression` which takes two parameters
 and returns the first.
@@ -213,31 +213,31 @@ and with the label:
 So if we redefine everything using Clojure's lambdas we get something like:
 
 ``` clojure
-  (def TRUE  (fn [x y] x))
-  (def FALSE (fn [x y] y))
+   (def TRUE  (fn [x y] x))
+   (def FALSE (fn [x y] y))
 
-  (def NOT   (fn [b] (b FALSE TRUE)))
+   (def NOT   (fn [b] (b FALSE TRUE)))
 
-  (NOT TRUE) ;;=> FALSE
+   (NOT TRUE) ;;=> FALSE
 
-  (def AND (fn [x y]
-             (x (y TRUE FALSE) FALSE)))
+   (def AND (fn [x y]
+              (x (y TRUE FALSE) FALSE)))
 
-  (AND FALSE TRUE) ;;=> FALSE
-  (AND TRUE TRUE)  ;;=> TRUE
+   (AND FALSE TRUE) ;;=> FALSE
+   (AND TRUE TRUE)  ;;=> TRUE
 
-  (def OR (fn [x y]
-            (x TRUE (y TRUE FALSE))))
+   (def OR (fn [x y]
+             (x TRUE (y TRUE FALSE))))
 
-  (OR FALSE FALSE) ;;=> FALSE
-  (OR FALSE TRUE)  ;;=> TRUE
+   (OR FALSE FALSE) ;;=> FALSE
+   (OR FALSE TRUE)  ;;=> TRUE
 
-  (def IF
-    (fn [b x y]
-      ((b TRUE FALSE) x y)))
+   (def IF
+     (fn [b x y]
+       ((b TRUE FALSE) x y)))
 
-  (IF (NOT FALSE)      "OK" "FAIL") ;;=> "OK"
-  (IF (AND FALSE TRUE) "OK" "FAIL") ;;=> "FAIL"
+   (IF (NOT FALSE)      "OK" "FAIL") ;;=> "OK"
+   (IF (AND FALSE TRUE) "OK" "FAIL") ;;=> "FAIL"
 
 ```
 
@@ -253,12 +253,11 @@ allowing more fine grained control.
 For example:
 
 ``` clojure
-;; note: both branches are evaluated.
-(IF TRUE (println "OK") (println "FAIL"))
-OK
-FAIL
-;;=> nil
-
+   ;; note: both branches are evaluated.
+   (IF TRUE (println "OK") (println "FAIL"))
+   OK
+   FAIL
+   ;;=> nil
 ```
 
 To match the behaviour of `clojure.core/if` we need to evaluate only
@@ -267,16 +266,16 @@ implementation I have to turn it into a macro and wrap each branch
 into a thunk.
 
 ``` clojure
-(defmacro IF [b x y]
-    `(((~b TRUE FALSE) (fn [] ~x) (fn [] ~y))))
+   (defmacro IF [b x y]
+       `(((~b TRUE FALSE) (fn [] ~x) (fn [] ~y))))
 
-;; note only the correct branch is evaluated.
-(IF TRUE (println "OK") (println "FAIL"))
-OK
-;;=> nil
+   ;; note: only the correct branch is evaluated.
+   (IF TRUE (println "OK") (println "FAIL"))
+   OK
+   ;;=> nil
 ```
 
-## Conclusions
+### Conclusions
 
 It has been an interesting journey to the origins of computational
 theory and functional programming theory. It is fascinating to see
@@ -294,40 +293,39 @@ my first solution. A map is built for every case and a thunk is
 associated with every key. A the time I wrote my solution I was
 unaware of this.
 
-## Final code.
+### Final code.
 
 Here all the final code.
 
 ``` clojure
-  (def TRUE  (fn [x y] x))
-  (def FALSE (fn [x y] y))
+   (def TRUE  (fn [x y] x))
+   (def FALSE (fn [x y] y))
 
-  (def NOT   (fn [b] (b FALSE TRUE)))
+   (def NOT   (fn [b] (b FALSE TRUE)))
 
-  (NOT TRUE) ;;=> FALSE
+   (NOT TRUE) ;;=> FALSE
 
-  (def AND (fn [x y]
-             (x (y TRUE FALSE) FALSE)))
+   (def AND (fn [x y]
+              (x (y TRUE FALSE) FALSE)))
 
-  (AND FALSE TRUE) ;;=> FALSE
-  (AND TRUE TRUE)  ;;=> TRUE
+   (AND FALSE TRUE) ;;=> FALSE
+   (AND TRUE TRUE)  ;;=> TRUE
 
-  (def OR (fn [x y]
-            (x TRUE (y TRUE FALSE))))
+   (def OR (fn [x y]
+             (x TRUE (y TRUE FALSE))))
 
-  (OR FALSE FALSE) ;;=> FALSE
-  (OR FALSE TRUE)  ;;=> TRUE
+   (OR FALSE FALSE) ;;=> FALSE
+   (OR FALSE TRUE)  ;;=> TRUE
 
-  (defmacro IF [b x y]
-      `(((~b TRUE FALSE) (fn [] ~x) (fn [] ~y))))
+   (defmacro IF [b x y]
+       `(((~b TRUE FALSE) (fn [] ~x) (fn [] ~y))))
 
-  (IF TRUE (println "OK") (println "FAIL"))
-  OK
-  ;;=> nil
-
+   (IF TRUE (println "OK") (println "FAIL"))
+   OK
+   ;;=> nil
 ```
 
-## Reference
-  [^1]: [X86_Assembly Control_Flow](https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow#Comparison_Instructions)
+### References
+  [^1]: [X86 Assembly Control Flow](https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow#Comparison_Instructions)
   [^2]: [An Introduction to the Lambda Calculus - Goldberg 2000](https://users.dcc.uchile.cl/~abassi/Cursos/41a/lambdacalc.pdf)
   [^3]: [clojure.core/case source code](https://github.com/clojure/clojure/blob/clojure-1.9.0-alpha14/src/clj/clojure/core.clj#L6579)
