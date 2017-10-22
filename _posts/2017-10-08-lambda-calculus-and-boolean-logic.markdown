@@ -340,5 +340,5 @@ Here all the final code.
 ### References
   [^1]: [X86 Assembly Control Flow](https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow#Comparison_Instructions)
   [^2]: [An Introduction to the Lambda Calculus - Goldberg 2000](https://users.dcc.uchile.cl/~abassi/Cursos/41a/lambdacalc.pdf)
-  [^3]: [Lambda Calculus - Computerphile](https://www.youtube.com/watch?v=eis11j_iGMs)  [^3]: [Lambda Calculus - Computerphile](https://www.youtube.com/watch?v=eis11j_iGMs)
+  [^3]: [Lambda Calculus - Computerphile](https://www.youtube.com/watch?v=eis11j_iGMs)
   [^4]: [clojure.core/case source code](https://github.com/clojure/clojure/blob/clojure-1.9.0-alpha14/src/clj/clojure/core.clj#L6579)
