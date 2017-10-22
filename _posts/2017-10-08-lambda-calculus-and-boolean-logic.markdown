@@ -11,6 +11,9 @@ author:
   image: bb.png
 ---
 
+In this post I will introduce some of the basic concepts of the
+_Lambda Calculus_ and use them to define basic terms and operators of
+the boolean logic.
 
 Recently, I was challenged to write a Clojure's macro called `IF`
 which behaves like the `clojure.core/if` but doesn't use anything that
@@ -24,8 +27,8 @@ computation. For example on `x86` the `if` it is implemented as a
 combination of a comparison operation `cmp` and a jump operation `jz`
 (jump if zero) [^1].
 
-So the best guess to solve the challenge was to artificially _jump to
-a location_. However in Clojure there is no _jump_ instruction so the
+My best guess to solve the challenge was to artificially _jump to a
+location_. However in Clojure there is no _jump_ instruction so the
 only way to simulate something similar is to encode the jump location
 into a map.  Therefore my solution was something like:
 
@@ -65,16 +68,24 @@ Although this works, I wasn't too happy with the solution. I thought
 there must be _a more elegant solution_.  Since Clojure is a
 functional language, I searched inspiration on the foundation of
 functional programming languages and went back to *Alonzo Church* and
-the *Lambda Calculus* [^2]. The Lambda Calculus defines the concept of
+the *Lambda Calculus* ([^2]-[^3]). The Lambda Calculus defines the concept of
 functions as computational boxes made only of very, very, very simple
 elements.
 
 The *Lambda Calculus* defines the following elements:
+  - the `λ` sign to denote a function.
+  - followed by a parameter name
+  - then a dot `.`
+  - and followed by an expression which is the body of the lambda.
+  - a set of parenthesis can wrap the expression to make it unambiguous.
+  - lambdas can optionally be *labelled*, in which case the label when
+    found in another expression it expands to the lambda which it
+    labels.
 
 ``` clojure
       (λx. M)
    ;;   |  \-> body
-   ;;   \----> variable
+   ;;   \----> parameter
 ```
 
 For example a `λ-abstraction` (or `λ-expression`) which increments a
@@ -97,7 +108,7 @@ variables with their values. For example:
    ;;=> 4
 ```
 
-A `λ-expression can also be *labelled*, once labelled the label can be
+A `λ-expression` can also be *labelled*, once labelled the label can be
 used in place of the expression and, if applied, it is replaced with
 its definition.
 
@@ -122,14 +133,14 @@ its definition.
 
 ### Boolean logic.
 
-First we define `TRUE` as a `λ-expression` which takes two parameters
-and returns the first.
+Let's define `TRUE` as a `λ-expression` which takes two parameters and
+returns the first.
 
 ``` clojure
    TRUE = (λxy. x)
 ```
 
-while `FALSE` takes two parameters as well but returns the second one:
+Similarly, `FALSE` takes two parameters, but returns the second one:
 
 ``` clojure
    FALSE = (λxy. y)
@@ -250,7 +261,8 @@ and then evaluating the function itself. However, Clojure macros (and
 special forms) take in input the forms (rather than the values)
 allowing more fine grained control.
 
-For example:
+For example, our new `IF` function will evaluate both branches
+of the expression before calling the function itself.
 
 ``` clojure
    ;; note: both branches are evaluated.
@@ -261,7 +273,7 @@ For example:
 ```
 
 To match the behaviour of `clojure.core/if` we need to evaluate only
-the branch which is the returned. So like I did in my first `IF`
+the branch which is returned. So like I did in my first `IF`
 implementation I have to turn it into a macro and wrap each branch
 into a thunk.
 
@@ -282,13 +294,13 @@ theory and functional programming theory. It is fascinating to see
 that it is possible to build pretty much anything out of very very
 simple elements. _Lambda Calculus_ has no concept of boolean logic or
 branching operations, and yet we managed to build all common boolean
-logic operators and the `if` instruction.
+logic operators and the `if` special form.
 
 The _Lambda Calculus_ has much more to offer. Reduction logic and
 combinators deserve a post on their own.
 
-As final note there is to say that `clojure.core/case` [^3] doesn't
-expand to `if` but, actually, it uses a techniques which is similar to
+As final note there is to say that `clojure.core/case` [^4] doesn't
+expand to `if` but, actually, it uses a technique which is similar to
 my first solution. A map is built for every case and a thunk is
 associated with every key. A the time I wrote my solution I was
 unaware of this.
@@ -328,4 +340,5 @@ Here all the final code.
 ### References
   [^1]: [X86 Assembly Control Flow](https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow#Comparison_Instructions)
   [^2]: [An Introduction to the Lambda Calculus - Goldberg 2000](https://users.dcc.uchile.cl/~abassi/Cursos/41a/lambdacalc.pdf)
-  [^3]: [clojure.core/case source code](https://github.com/clojure/clojure/blob/clojure-1.9.0-alpha14/src/clj/clojure/core.clj#L6579)
+  [^3]: [Lambda Calculus - Computerphile](https://www.youtube.com/watch?v=eis11j_iGMs)  [^3]: [Lambda Calculus - Computerphile](https://www.youtube.com/watch?v=eis11j_iGMs)
+  [^4]: [clojure.core/case source code](https://github.com/clojure/clojure/blob/clojure-1.9.0-alpha14/src/clj/clojure/core.clj#L6579)
