@@ -138,12 +138,36 @@ Summary table:
 
 
 Now leaving aside the fact that for some reason both `planck` and
-`lumo` got the wrong result, the difference in timing is impressive.
-The most impressive result is the `pixie-vm` JIT performance which in
-this special case of tight loop it goes even faster than the JVM.
-Even removing the JVM cold start and Clojure compilation JVM still
-performs around `6.3s`.
+`lumo` got the wrong result [[^1]], the difference in timing
+is impressive.  The most impressive result is the `pixie-vm` JIT
+performance which in this special case of tight loop it goes even
+faster than the JVM.  Even removing the JVM cold start and Clojure
+compilation JVM still performs around `6.3s`.
 
 I don't know whether the work on `pixie` it is going to proceed,
 however the benchmark result is the testament of the great work
 that _Timothy Baldridge et al._ have put into this project.
+
+---
+
+##### Footnotes:
+
+   [^1]: `planck` and `lumo` and ClojureScript in general are hosted
+    on top of JavaScript. [JavaScript
+    specifications](https://www.ecma-international.org/ecma-262/6.0/#sec-terms-and-definitions-number-value)
+    defines only one type of primitive numeric value which is a
+    double-precision 64-bit **floating point** binary **format IEEE
+    754-2008** value. This floating point format defines 53-bits for
+    the mantissa which stores the actual number, some of which could
+    be decimal part. If you are representing a integer value then you
+    can use all 53-bits for the integer part. Therefore the largest
+    integer you can represent in this case is `2^53 -1` which is
+    **9007199254740991**. The reason why `planck` and `lumo` show a
+    different result is that the result of the operation is way larger
+    than the max integer in JavaScript so the sum operator computes
+    the result and it rounds it up to the nearest representable value
+    in *IEEE 754-2008 format* (see: [Applying the Additive Operators
+    to
+    Numbers](https://www.ecma-international.org/ecma-262/6.0/#sec-applying-the-additive-operators-to-numbers)). Clojure
+    over Java or .Net and `pixie` use a 64-bit integer format which it
+    can fully represent the result of the operation.
