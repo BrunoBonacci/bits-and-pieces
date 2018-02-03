@@ -6,7 +6,7 @@ categories: [development]
 tags: [Clojure]
 ---
 
-_Last update on 2017-05-30._
+_Last update on 2018-03-03._
 
 Destructuring is a simple, yet powerful feature of Clojure.
 There are several ways in which you can leverage destructuring
@@ -434,7 +434,7 @@ extract only the elements at index 100 and 200.
 
 (let [{v1 100 v2 200} (apply vector (range 500))]
   (println v1 v2))
-;; 100 500
+;; 100 200
 ```
 
 
