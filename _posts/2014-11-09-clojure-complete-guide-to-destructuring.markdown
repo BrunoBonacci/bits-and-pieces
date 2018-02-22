@@ -6,7 +6,7 @@ categories: [development]
 tags: [Clojure]
 ---
 
-_Last update on 2018-03-03._
+_Last update on 2018-02-22._
 
 Destructuring is a simple, yet powerful feature of Clojure.
 There are several ways in which you can leverage destructuring
@@ -636,6 +636,51 @@ the compiler and no value will be bound.
 ;; notice all defaults are `nil`
 ```
 
+#### Multi-matching values with namespaced keys
+
+Namespaced keys are good way to not conflate multiple meaning to a
+single key, and by assigning different namespaces to a key you can give
+different meaning.  However you need to be careful when destructuring
+namespaced keys in Clojure to never have the same key name
+destructured multiple times in the same structure.
+
+For example let's assume you have a map as follow:
+
+``` clojure
+(def value {:id "id"
+            :fistname "John"
+            :lastname "Smith"
+            :customer/id "customer/id"})
+
+```
+
+The key `:id` might represent the id of that particular record while
+`:customer/id` might be the `:id` coming from the CRM system for the same
+person.  Clearly they are two different IDs in Clojure.
+
+But check this out, if you mix them both in a single destructuring
+form you might have unexpected behaviours.
+
+``` clojure
+;; nothing strange here
+(let [{:keys [:id]} value] (println id))
+;; id
+
+;; nothing strange here
+(let [{:keys [:customer/id]} value] (println id))
+;; customer/id
+
+;; KEY MIXUP - BAD
+;; in the next two examples we attempt to destructure both keys
+;; at the same time with two different namespaces.
+;; NOTICE the one which appear later in the structure wins.
+(let [{:keys [:id :customer/id]} value] (println id))
+;; customer/id
+
+(let [{:keys [:customer/id :id]} value] (println id))
+;; id
+```
+
 
 ## Conclusion
 
@@ -705,6 +750,7 @@ Updates:
 
   - 2017-05-13 - added destructuring of namespaced keys.
   - 2017-05-23 - added common mistakes / gotchas.
+  - 2018-02-22 - added more gotchas
 
 References:
 
