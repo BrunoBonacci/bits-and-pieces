@@ -6,7 +6,7 @@ categories: [development]
 tags: [Clojure]
 ---
 
-_Last update on 2018-02-22._
+_Last update on 2018-05-15._
 
 Destructuring is a simple, yet powerful feature of Clojure.
 There are several ways in which you can leverage destructuring
@@ -39,6 +39,7 @@ accepts two parameters and returns the geohash for a specific location.
 
 ``` clojure
 (defn geohash [lat lng]
+   (println "geohash:" lat lng)
    ;; this function take two separate values as params.
    ;; and it return a geohash for that position
 )
@@ -52,6 +53,8 @@ do as follow:
       lat   (first coord)
       lng   (second coord)]
   (geohash lat lng))
+
+;; geohash: 51.503331 -0.1195
 ```
 
 Although this works, there is a lot of boilerplate code for just calling two functions. Destructuring allows you to separate a structured value into its costituent parts.
@@ -60,6 +63,8 @@ For example the following code is equivalent to the previous one.
 ``` clojure
 (let [[lat lng] (current-position)]
   (geohash lat lng))
+
+;; geohash: 51.503331 -0.1195
 ```
 
 Basically the returned value from `(current-position)` which is a structured value (vector), is getting **de-structured** into the mapping vector `[lat lng]` where the first value is assigned to the first element in the vector, the second to the second, and so on.
@@ -160,6 +165,8 @@ it returned a map, this is probably how you would write the code without destruc
       lat   (:lat coord)
       lng   (:lng coord)]
   (geohash lat lng))
+
+;; geohash: 51.503331 -0.1195
 ```
 
 
@@ -170,6 +177,8 @@ Maps have two ways to destructure data.
 ``` clojure
 (let [{lat :lat, lng :lng} (current-position)]
   (geohash lat lng))
+
+;; geohash: 51.503331 -0.1195
 ```
 
 In this case you are telling to the destructuring process to do the following things:
@@ -183,6 +192,8 @@ however most commonly Clojure's map are destructured in the follwoing way.
 ``` clojure
 (let [{:keys [lat lng]} (current-position)]
   (geohash lat lng))
+
+;; geohash: 51.503331 -0.1195
 ```
 
 
@@ -195,10 +206,17 @@ entire map with the `:as` clause in the same way of the lists.
   (println "calculating geohash for coordinates: " coord)
   (geohash lat lng))
 
+;; calculating geohash for coordinates:  {:lat 51.503331, :lng -0.1195}
+;; geohash: 51.503331 -0.1195
+
 
 (let [{:keys [lat lng] :as coord} (current-position)]
   (println "calculating geohash for coordinates: " coord)
   (geohash lat lng))
+
+;; calculating geohash for coordinates:  {:lat 51.503331, :lng -0.1195}
+;; geohash: 51.503331 -0.1195
+
 ```
 
 From Clojure 1.6 you can also specify the keys as keywords and they
@@ -208,6 +226,9 @@ can even be namespaced. The following code snippet is equivalent to the previous
 (let [{:keys [:lat :lng] :as coord} (current-position)]
   (println "calculating geohash for coordinates: " coord)
   (geohash lat lng))
+
+;; calculating geohash for coordinates:  {:lat 51.503331, :lng -0.1195}
+;; geohash: 51.503331 -0.1195
 ```
 
 
@@ -219,6 +240,9 @@ can use the `:strs` instead of `:keys`.
 (let [{:strs [lat lng] :as coord} {"lat" 51.503331, "lng" -0.119500}]
   (println "calculating geohash for coordinates: " coord)
   (geohash lat lng))
+
+;; calculating geohash for coordinates:  {lat 51.503331, lng -0.1195}
+;; geohash: 51.503331 -0.1195
 ```
 
 
@@ -229,6 +253,9 @@ In this case you should use `:syms` instead of `:keys`
 (let [{:syms [lat lng] :as coord} {'lat 51.503331, 'lng -0.119500}]
   (println "calculating geohash for coordinates: " coord)
   (geohash lat lng))
+
+;; calculating geohash for coordinates:  {lat 51.503331, lng -0.1195}
+;; geohash: 51.503331 -0.1195
 ```
 
 
@@ -494,6 +521,13 @@ be slightly changed. Given the following map:
 ;; Smith - CEO
 
 
+;; Clojure 1.9
+;; a default value might be provided
+(let [{:keys [lastname corporate/position]
+       :or {position "Employee"}} contact]
+  (println lastname "-" position))
+
+;; Clojure 1.8 or previous
 ;; a default value might be provided
 (let [{:keys [lastname corporate/position]
        :or {corporate/position "Employee"}} contact]
@@ -501,6 +535,11 @@ be slightly changed. Given the following map:
 ;; Smith - CEO
 
 ```
+
+Notice in this last example there is change between Clojure up to 1.8
+and Clojure 1.9. In Clojure 1.9 the default key for a namespaced key
+must be without the namespace otherwise you get a compilation exception.
+Same applies on the next example.
 
 Finally a reminder that double-colon `::` is a shortcut to represent
 current namespace.
@@ -514,6 +553,13 @@ current namespace.
    ::id       "LDF123"
    ::position "CEO"})
 
+;; Clojure 1.9
+(let [{:keys [lastname ::position]
+       :or {position "Employee"}} contact]
+  (println lastname "-" position))
+;; Smith - CEO
+
+;; Clojure 1.8 or previous
 (let [{:keys [lastname ::position]
        :or {::position "Employee"}} contact]
   (println lastname "-" position))
@@ -589,17 +635,20 @@ The compiler won't complain, and the default value won't be bound.
   (println "connecting to:" host "port:" port "db-name:" db-name
            "username:" username "password:" password))
 
+(connect-db "server")
+
 ;; connecting to: server port: 12345 db-name: my-db username: nil password: secret
 ;;                notice the username is `nil` ---------------^
 ```
 
-#### Keywords in defaults
+#### Keywords in defaults (fixed in 1.9)
 
 Similarly if you put keywords in the default's map values won't be
-bound and the compiler won't complain.
+bound and the compiler won't complain up to Clojure 1.8.
+In Clojure 1.9 this is fixed, and a compilation error will be raised.
 
 ``` clojure
-;; BAD DEFAULTS
+;; BAD DEFAULTS - Clojure 1.8
 (defn connect-db [host ; mandatory parameter
                   & {:keys [port db-name username password]
                      :or   {:port     12345
@@ -615,13 +664,13 @@ bound and the compiler won't complain.
 ;; notice all defaults are `nil`
 ```
 
-#### Defaults in a vector
+#### Defaults in a vector (fixed in 1.9)
 
 If by mistake you put all defaults in a vector, again, no error from
-the compiler and no value will be bound.
+the compiler (up to Clojure 1.8) and no value will be bound.
 
 ``` clojure
-;; BAD DEFAULTS
+;; BAD DEFAULTS - Clojure 1.8
 (defn connect-db [host ; mandatory parameter
                   & {:keys [port db-name username password]
                      :or   [port     12345
@@ -735,7 +784,6 @@ that the code becomes clearer and event more readable.
 {:syms [contact/firstname contact/lastname] :as person}     {'contact/firstname "John"     'contact/lastname "Smith"}
 ;; firstname = John, lastname = Smith, person = {:firstname "John" :lastname "Smith"}
 
-
 ```
 
 
@@ -744,13 +792,14 @@ that the code becomes clearer and event more readable.
 
 For this article I've used:
 
-  - Clojure 1.6.0, 1.7.0 and 1.8.0
+  - Clojure 1.6.0, 1.7.0, 1.8.0 and 1.9.0
 
 Updates:
 
   - 2017-05-13 - added destructuring of namespaced keys.
   - 2017-05-23 - added common mistakes / gotchas.
   - 2018-02-22 - added more gotchas
+  - 2018-05-15 - updated with Clojure 1.9 notes
 
 References:
 
