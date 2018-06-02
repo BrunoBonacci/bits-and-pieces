@@ -40,19 +40,11 @@ learning modules and to create a community behind the project.
 
 ---
 
-### Where
-
-`where` it's a small Clojure/ClojureScript library to write predicate
-functions which are easier to read and easier to compose.
-
-  * **Github**: [https://github.com/BrunoBonacci/where](https://github.com/BrunoBonacci/where)
-
----
 
 ### Safely
 
-`safely` it's a Clojure library which embraces the declarative error
-management idea.  The purpose of the library is to simply and
+`safely` it's a Clojure Circuit-Breaker and retry library with a
+declarative approach.  The purpose of the library is to simply and
 effectively handle retries declaratively making sure that in a large
 distributed system these retries won't cause _self-similar mass
 behavior_ and causing more arm than benefit.
@@ -60,6 +52,19 @@ behavior_ and causing more arm than benefit.
   * **Github**: [https://github.com/BrunoBonacci/safely](https://github.com/BrunoBonacci/safely)
 
 ---
+
+### Where
+
+`where` it's a small Clojure/ClojureScript library to write predicate
+functions which are easier to read and easier to compose.  It supports
+a number of built-in comparators which are `nil` safe and support case
+insensitive checks.
+
+  * **Github**: [https://github.com/BrunoBonacci/where](https://github.com/BrunoBonacci/where)
+
+---
+
+
 
 ### dragonfiles
 
