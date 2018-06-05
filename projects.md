@@ -47,7 +47,9 @@ learning modules and to create a community behind the project.
 declarative approach.  The purpose of the library is to simply and
 effectively handle retries declaratively making sure that in a large
 distributed system these retries won't cause _self-similar mass
-behavior_ and causing more arm than benefit.
+behavior_ and causing more arm than benefit. The circuit breaker
+is implemented fully in Clojure and offers good features for
+observability..
 
   * **Github**: [https://github.com/BrunoBonacci/safely](https://github.com/BrunoBonacci/safely)
 
@@ -64,6 +66,32 @@ insensitive checks.
 
 ---
 
+### clj-sophia
+
+An idiomatic Clojure driver for [Sophia
+DB](http://sophia.systems/). Sophia is RAM-Disk hybrid storage
+designed to provide best possible on-disk performance without
+degradation in time.  Sophia is an embedded key/value store which
+implements a LSM storage system. Very fast and fully ACID
+(Serialized Snapshot Isolation - SSI) transactional support..
+
+  * **Github**: [https://github.com/BrunoBonacci/clj-sophia](https://github.com/BrunoBonacci/clj-sophia)
+
+---
+
+### ring-boost
+
+A library to boost performances of Clojure web applications with
+off-heap serverside caching. Serverside caching is uniquely
+positionated for effective caching it does NOT require all clients to
+implement caching directives on the client side.
+The cached payload is stored off-heap and on disk so that it doesn't
+put more pressure on the Garbage Collector.
+The caching logic can be completely customized to tailor your needs.
+
+  * **Github**: [https://github.com/BrunoBonacci/ring-boost](https://github.com/BrunoBonacci/ring-boost)
+
+---
 
 
 ### dragonfiles
