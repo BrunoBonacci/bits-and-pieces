@@ -84,10 +84,11 @@ implements a LSM storage system. Very fast and fully ACID
 A library to boost performances of Clojure web applications with
 off-heap serverside caching. Serverside caching is uniquely
 positionated for effective caching it does NOT require all clients to
-implement caching directives on the client side.
-The cached payload is stored off-heap and on disk so that it doesn't
-put more pressure on the Garbage Collector.
-The caching logic can be completely customized to tailor your needs.
+implement caching directives on the client side.  The cached payload
+is stored off-heap and on disk so that it doesn't put more pressure on
+the Garbage Collector. Since the cache data is stored on disk it avoid
+the problem of a cold-restart with and empty cache. The caching logic
+can be completely customized to tailor your needs.
 
   * **Github**: [https://github.com/BrunoBonacci/ring-boost](https://github.com/BrunoBonacci/ring-boost)
 
