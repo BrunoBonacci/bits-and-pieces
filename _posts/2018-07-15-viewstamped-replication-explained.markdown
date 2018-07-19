@@ -84,6 +84,7 @@ quorum with less than 3 nodes, therefore the minimum ensemble size is
 TODO: add section with redis example which explain VR is a
       communication wrapper.
 
+TODO: add section on leader selection
 
 ## Replicated State Machines
 
@@ -182,12 +183,146 @@ send the cached response.
 
 ## The Protocol
 
-Next we are going to analyse the protocol in details.
-
-(tell about simplicity and efficiency trade off with
-optmisations).
+Next we are going to analyse the protocol in details.  The protocol is
+presented in the paper in its simplest form first.  Then the paper
+goes on describing a number of optimisations which do not change the
+basic structure of the protocol but make it efficient and practical to
+implement for real world application.  Efficiency is a major concern
+throughout the papers as the authors were building real-world systems.
 
 ### Client requests handling.
+
+In this section we are going to see how a client request is processed
+and the data replicated. We are going to see, in details, how the protocol
+ensures that at least a quorum of replicas acknowledges the request
+before executing the request.
+
+![client request processing](../images/vr-paper/client1.gif)
+
+Clients have a unique identifier (`client-id`), they communicate only
+with the primary. If a client contacts a replica which is not the
+primary, the replica drops the requests, and returns an error message
+to the client advising it to connect to the primary.  Each client can
+only send one request at the time, and each request has a request
+number (`request#`) which is a monotonically increasing number.  The
+client prepares `<REQUEST>` message which contains the `client-id`,
+the request `request#` and the operation (`op`) to perform.
+
+When the primary receives the request from the client, it checks
+whether the request is already present in the client table.  If the
+request's number is greater of the one in the client table then it is
+a new request, otherwise it means that the client might not have
+received last response and it is re-sending the previous request. In
+this case the request is dropped and the primary re-send last response
+present in the client table.
+
+If it is a new request, then the primary increases the operation
+number (`op-num`), it appends the requested operation to its operation
+log (`op-log`) and it update the `client-table` with the new request.
+
+Then it needs to notify all the replicas about the new request, so it
+creates a `<PREPARE>` message which contains: the current view number
+(`view-num`), the operation's `op-num`, the last commit number
+(`commit-num`), and the `message` which is the client request, and it
+sends the message to all the replicas.
+
+When a replica receives a `<PREPARE>` request, it first check whether
+the view number is the same `view-num`, if its view number is
+different than the message `view-num` it means that a new primary was
+nominated and, depending on who is behind, it needs to get up to date.
+If its view-number is smaller than the message `view-num`, then it
+means that this particular node is behind, so it needs to change its
+`status` to `revovery` and initiate a state transfer from the new
+primary (we will see the primary change process called **view change**
+later).  If its view-number is greater than the message `view-num`,
+then it means that the other replica need to get up-to-date, so it
+drop the message.  Finally if the `view-num` is the same, then it
+looks at the `op-num` in the message. The `op-num` needs to be
+*strictly consecutive*.  If there are gaps it means that this replica
+missed one or more `<PREPARE>` messages, do it drops the message and
+it initiate a recovery with a state transfer.  If the `op-num` is
+*strictly consecutive* then it increment its `op-num`, append the
+operation to the `op-log` and update the client table.
+
+Now the replica sends an acknowledgement to the primary that the
+operation, and all previous operations, were successfully prepared. It
+create a `<PREPARE-OK>` message with its `view-num`, the `op-num` and
+its identity.  Sending a `<PREPARE-OK>` for a given `op-num` means
+that all the previous operations in the log have been prepared as well
+(no gaps).
+
+The primary waits for `𝑓 + 1` including itself `<PREPARE-OK>`
+messages, at which point it knows that a **quorum** of nodes knows
+about the operation to perform therefore it is considered safe to
+proceed as it is guaranteed that the operation will survive the loss
+of `𝑓` nodes. When it receives enough `<PREPARE-OK>` then it perform
+the operation, possibly with side effect, it increases its commit
+number `commit-num`, and update the client table with the operation
+result. Again, advancing the `commit-num` must be done in strict order,
+and it also means that **all previous operations have been committed**
+as well.
+
+Finally it prepares a `<REPLY>` message with the current `view-num`
+the client request number `request#` and the operation result
+(`response`) and it sends it to the client.
+
+At this point the primary is the only node that has performed the
+operation (and advanced its `commit-num`) while the replicas have only
+prepared the operation but not applied. Before they can safely apply
+they need confirmation from the primary that it is safe to do so.
+
+This can happen in two ways.
+
+![client request processing](../images/vr-paper/client2.gif)
+
+Let's assume that the same client or a new client comes along and
+makes a new request.  The client will create a `<REQUEST>` message and
+send it to the primary as well.  The primary will process the request
+as usual, check the client table, increase the `op-num` and append to
+the `op-log`, then it creates a `<PREPARE>` message with the
+`view-num`, the `op-num`, the client's `message` *but it also includes
+its `commit-num` which now shows that the primary advanced its
+position*.
+
+When the replicas receives the `<PREPARE>` it follows the normal
+process; It checks the `view-num`, checks the `op-num`, increment its
+operation number append to the `op-log` and update the client table,
+then it sends a `<PREPARE-OK>` to the primary for the operation it
+received.
+
+However the `<PREPARE>` message also contained the `commit-num` which
+showed that the primary has now executed the operation against its
+state and it is notifying the replicas that it is safe to do so as
+well. So the replicas will perform all requests in their `op-log`
+between the last `commit-num` and the `commit-num` in the `<PREPARE>`
+message **strictly following the order of operations** and advance its
+`commit-num` as well. At this point both, primary and replicas have
+performed the *committed* operations in their state.
+
+So we seen how the primary uses the `<PREPARE>` message to inform
+replicas about new operations as well as operations which are now safe
+to perform.  But what if there is not a new request coming in? what if
+the system is experiencing a low request rate, maybe because it is the
+middle of the night and all users are asleep? If the primary doesn't
+receive a new client request within a certain time then it will create
+a `<COMMIT>` message to inform replicas about which operations can now
+be performed.
+
+![client request processing](../images/vr-paper/client3.gif)
+
+The `<COMMIT>` message will only contain the current view number
+(`view-num`) and the last committed operation (`commit-num`).  When a
+replica receives a `<COMMIT>` it will execute all operation in their
+`op-log` between the last `commit-num` and the `commit-num` in the
+`<COMMIT>` message **strictly following the order of operations** and
+advance its `commit-num` as well.
+
+The `<PREPARE>` message together with the `<COMMIT>` message act as a
+sort of heartbeat for the primary. Replicas use this to identify when
+a primary might be dead and elect a new primary. This process is
+called **view change** and it is what we are going to discuss next.
+
+### View change
 
 
 ---
