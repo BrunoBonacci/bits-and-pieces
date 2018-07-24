@@ -84,8 +84,6 @@ quorum with less than 3 nodes, therefore the minimum ensemble size is
 TODO: add section with redis example which explain VR is a
       communication wrapper.
 
-TODO: add section on leader selection
-
 ## Replicated State Machines
 
 Viewstamped Replication is based on the *State Machine Replication* concept.
@@ -208,13 +206,15 @@ number (`request#`) which is a monotonically increasing number.  The
 client prepares `<REQUEST>` message which contains the `client-id`,
 the request `request#` and the operation (`op`) to perform.
 
-When the primary receives the request from the client, it checks
-whether the request is already present in the client table.  If the
-request's number is greater of the one in the client table then it is
-a new request, otherwise it means that the client might not have
-received last response and it is re-sending the previous request. In
-this case the request is dropped and the primary re-send last response
-present in the client table.
+The primary only processes the requests if its `status` is `normal`,
+otherwise it drops the request and sends a error message to the client
+advising to try later.  When the primary receives the request from the
+client, it checks whether the request is already present in the client
+table.  If the request's number is greater of the one in the client
+table then it is a new request, otherwise it means that the client
+might not have received last response and it is re-sending the
+previous request. In this case the request is dropped and the primary
+re-send last response present in the client table.
 
 If it is a new request, then the primary increases the operation
 number (`op-num`), it appends the requested operation to its operation
@@ -322,7 +322,134 @@ sort of heartbeat for the primary. Replicas use this to identify when
 a primary might be dead and elect a new primary. This process is
 called **view change** and it is what we are going to discuss next.
 
-### View change
+### View change protocol
+
+The *view change protocol* is used when one of the replicas
+detects that the current primary is unavailable and it proceeds
+to inform the rest of the ensemble. If a quorum of nodes agrees
+then the ensemble will transition to a new primary.
+This part of the protocol ensures that the new primary has all the
+latest information to act as the new leader.
+
+#### Leader "selection"
+
+In my view, one of the most interesting parts of the ViewStamped
+Replication protocol is the way the new primary node is
+selected. Other consensus protocols (such as Paxos and Raft) have
+rather sophisticated way to elect a new primary (or leader) with
+candidates having to step up, ask for votes, ballots, turns
+etc. ViewStamped Replication takes a completely different approach. It
+uses a **deterministic function** over a fix property of the replica
+nodes, something like a unique identifier or IP address.
+
+For example the nodes IP addresses don't change you could use the
+`sort` function which given a list of nodes UPS will return a
+deterministic sequence of nodes.  The ViewStamped Replication
+algorithm simply uses the sorted list of IPs to determine who is the
+next primary node, and *in round-robin fashion* all nodes will, in
+turn, become the new primary when the previous one is unavailable.  I
+find this strategy very simple and effective. There is no vote to
+cast, candidates stepping up, election turns, ballots, just a
+predefined sequence of who's turn is.
+
+For example if you have a three nodes cluster with the following IP addresses
+
+```
+10.5.3.12           10.5.1.20  (1)
+10.5.1.20  ~sort~>  10.5.2.28  (2)
+10.5.2.28           10.5.3.12  (3)
+```
+
+Therefore the node `10.5.1.20` will be the first primary, and
+everybody knows that it will be the first. When that node dies or is
+partitioned away from the rest of the cluster, the next node to become
+the primary will be the `10.5.2.28` followed by `10.5.3.12` and then
+starting from the beginning again.
+
+The protocol takes care of making sure that in the event that the node
+who is set to be the next primary, somehow, has fallen behind and it
+is not the most up-to-date, it will be able to gather the latest
+information from the other nodes and ensure that it is ready for the
+job. We will see this in mode details in this section.
+
+
+#### The view change
+
+Let's start with a working cluster. Replicas `R1` to `R5` are all up
+and running, `R1` is the first primary node, followed by `R2` and so
+on. Since ensembles are formed by `2𝑓 + 1` nodes, this cluster can
+survive and continue processing requests in the event 2 nodes are
+failed.
+
+`R1` is currently accepting client's requests and those are handled as
+seen earlier. Therefore for each client request a `<PREPARE>` message
+is sent to all replicas and they reply with a
+`<PREPARE-OK>`. `<COMMIT>` messages are also used to signal which
+operations are committed by the primary.
+
+![view change](../images/vr-paper/view-change.gif)
+
+Let's assume that the primary `R1` crashes or is isolated from the
+rest of the cluster.  No more `<PREPARE>` or `<COMMIT>` messages will
+be received by the rest of the cluster. As said previously these messages
+act as heartbeat for the primary health.
+
+At some point, in one of the nodes (`R4` for example) a timeout will
+expire, and it will detect that it didn't hear from the primary since
+a predefined amount of time.  At this point the replica will change
+its `status` to `view-change`, increase its view number (`view-num`)
+and create a `<START-VIEW-CHANGE>` message with the new `view-num` and
+its identity. It will then send this message to all the replicas.
+
+When the other replicas receive a `<START-VIEW-CHANGE>` message with a
+`view-num` bigger than the one they have, they set their `status` to
+`view-change` and set the `view-num` to the view number in the message
+and reply with `<START-VIEW-CHANGE>` to all replicas.
+
+When a replica receives `𝑓 + 1` (including itself)
+`<START-VIEW-CHANGE>` message with its `view-num` then it means that
+the majority of the nodes agrees on the view change so it sends a
+`<DO-VIEW-CHANGE>` to the new primary (selected as described above).
+The `<DO-VIEW-CHANGE>` message contains the new `view-num` the last
+view number in which the state was normal `old-view-number`, its
+`op-num` and its operation log (`op-log`) and its commit number
+(`commit-num`).
+
+When the new primary, in this case node `R2`, it receives `𝑓 + 1`
+(including itself) `<DO-VIEW-CHANGE>` with the same `view-num` it
+compares the messages against its own information and pick the most
+up-to-date. It will set the `view-num` the new `view-num`, it will
+take the operation log (`op-log`) from the replicas with the highest
+`old-view-number`. If many replicas have the same `old-view-number` it
+will pick the one with the largest `op-log`, it will take the `op-num`
+from the chosen `op-log` and the highest `commit-num` and execute all
+committed operations in the operation log between its old `commit-num`
+value and the new `commit-num` value.  At this point the new primary
+is ready to accept requests from the client so it sets its `status` to
+`normal`.  Finally it sends a `<START-VIEW>` message to all replicas
+with the new `view-num`, the most up to date `op-log`, the
+corresponding `op-num` and the highest `commit-num`.
+
+When the other replicas receive the `<START-VIEW>` message they
+replace their own local information with the data in the
+`<START-VIEW>` message, specifically they take: the `op-log`, the
+`op-num` and the `view-num`.  They change their `status` to `normal`
+and they execute all the operation from their old `commit-num` to the
+new `commit-num` and they send a `<PREPARE-OK>` for all operation in
+the `op-log` which haven't been committed yet.
+
+Some time later the failed node (`R1`) might come back alive either
+because the partition is now terminated or because the crashed nodes
+it has been restarted. At this point the `R1` might still think it is
+the primary and be waiting for requests from clients. However, since
+the ensemble transitioned to a new primary in the meantime, it is
+likely that clients will be sending requests to the new primary and it
+is likely that the new primary is sending `<PREPARE>`/`<COMMIT>`
+messages to all the replicas, including the one which previously
+failed. At this point the failed replica will notice the
+`<PREPARE>`/`<COMMIT>` messages which have a `view-num` greater than
+its `view-num` and it will understand that the cluster transitioned to
+a new `view-num`.
 
 
 ---
