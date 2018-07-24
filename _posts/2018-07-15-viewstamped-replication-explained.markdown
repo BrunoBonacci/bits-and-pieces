@@ -446,10 +446,50 @@ the ensemble transitioned to a new primary in the meantime, it is
 likely that clients will be sending requests to the new primary and it
 is likely that the new primary is sending `<PREPARE>`/`<COMMIT>`
 messages to all the replicas, including the one which previously
-failed. At this point the failed replica will notice the
-`<PREPARE>`/`<COMMIT>` messages which have a `view-num` greater than
+failed. At this point the failed replica will notice that
+`<PREPARE>`/`<COMMIT>` messages have a `view-num` greater than
 its `view-num` and it will understand that the cluster transitioned to
-a new `view-num`.
+a new primary and that it needs to get up to date.
+
+In this case it will set its `status` to `recovery` and issue a
+`<GET-STATE>` request to any of the other replicas. The `<GET-STATE>`
+will contains its current values of the `view-num`, `op-num` and
+`commit-num` together with its identity. The `<GET-STATE>` message is
+the same message used by the replicas when the fall behind and their
+request all the messages they missed.  The receiving replica of the
+`<GET-STATE>` will respond only if its `status` is `normal` and it
+will check the `view-num` value contained in the message.
+
+If the `view-num` in the `<GET-STATE>` message is the same as its
+`view-num` it means that the requesting node just fell behind, so it
+will prepare a `<NEW-STATE>` message with its `view-num`, its
+`commit-num` and its `op-num` and the portion of the `op-log` between
+the `op-num` in the `<GET-STATE>` and its `op-num`.
+
+If the `view-num` in the `<GET-STATE>` message is different,then it
+means that the node was in a partition during a view change.  In this
+case it will prepare a `<NEW-STATE>` message with new `view-num`, its
+`commit-num` and its `op-num` and the portion of the `op-log` between
+the `commit-num` in the `<GET-STATE>` this time and its `op-num`, this
+is because some operation in the minority group might not have
+survived the view-change.
+
+This is concludes the discussion about the ViewStamped Replication
+protocol.  We seen how requests are handled in the normal case, and we
+have seen how the ensemble safely transition to a new primary in case
+it detects a failure or partition in the previous one. We also seen
+how the protocol design accounts for unreliable network and allows for
+any message to be dropped, delayed or reordered and still work
+correctly.
+
+## Protocol optimisations.
+
+Some of the limitations described earlier were imposed to allow to
+focus the discussion over the protocol correctness and clarity.  In
+this section we'll see how some of the optimisations proposed by the
+authors makes this protocol not only realistic to implement for a real
+world system, but also efficient and practical.
+
 
 
 ---
