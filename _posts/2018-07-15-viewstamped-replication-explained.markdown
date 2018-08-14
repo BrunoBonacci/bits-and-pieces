@@ -491,6 +491,65 @@ authors makes this protocol not only realistic to implement for a real
 world system, but also efficient and practical.
 
 
+### Persistent state
+
+While the protocol as described above doesn't require the internal
+replica state to be persisted to work properly you can store the state
+in a durable storage do speed up crash recovery. In fact in a large
+system the operation log (`op-log`) could become, over time, quite
+large. It would be unreasonable and ineffective to keep the entire
+operation log in memory only. Upon a crash, or when a replica is
+restarted will require to get a copy of the `op-log` from another
+replica (via `<GET-STATE>`) and if the replica has to transfer
+terabytes of data the operation could take a long time.
+
+Storing the internal replica state into a durable storage can speed up
+the recovery in the event the process is crashed or restarted.  In
+fact in this case, new replica process will only need to fetch the
+tail of the operation log since its last committed operation
+(`commit-num`).
+
+Since the persistent state is not required to run the protocol
+correctly, then the implementer can make design decisions based on the
+efficient use of the storage. For example it could decide to `fsyinc`
+only when you have enough changes to fill a buffer, as supposed to
+*fsync-ing* on every request which it would be slow and inefficient.
+Additionally the durability of the state could be managed completely
+asynchronously from the protocol execution.
+
+### Witnesses
+
+Running the protocol has a cost. As we seen the primary has to wait
+for a _quorum_ of nodes to respond on every `<PREPARE>` request before
+executing the client request. In a large cluster, as the number of
+nodes increases it increases the number of nodes that the primary has
+to wait for a response and it increases the likelihood the at one
+being slower and having to wait for longer. In such cases we can
+divide the ensemble into *active replicas* and *witness replicas*.
+
+Active replicas account for `𝑓 + 1` nodes which run the full protocol
+and keep the state. The *primary* is *always* an active replica. The
+reminder of the nodes are called *witnesses* and only participate to
+the view changes and recovery.
+
+### Batching
+
+In a high volume system there will be a huge number of `<PREPARE>`
+messages flying around. To reduce the latency cost of running the
+protocol the *primary replica* could batch a number of operation
+before sending a `<PREPARE>` messages to the other replicas.  In this
+case the `<PREPARE>` messages will include *all the operations* in the
+batch and the `<PREPARE-OK>` message will confirm that *all
+operations* in the batch have been prepared.  Several batching
+strategies can be applied for example the *primary* could wait for at
+most *20 milliseconds* or when 50 operations have been batched or
+whichever comes first, and then send the batch in a single `<PREPARE>`
+message.
+
+The same strategy could be applied on the client side for batching
+client's requests.
+
+
 
 ---
 
