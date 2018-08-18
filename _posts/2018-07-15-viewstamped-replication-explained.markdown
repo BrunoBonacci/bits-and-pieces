@@ -549,6 +549,54 @@ message.
 The same strategy could be applied on the client side for batching
 client's requests.
 
+## Fast read-only requests on Primary
+
+In the general definition of the protocol, read-only requests, which
+do not alter the state are server via the normal request processing.
+However since read requests do not need to survive a partition, they
+could be served *unilaterally* by the *primary* without contacting the
+replicas.
+
+The advantage of this optimisation is that read requests could benefit
+of shorter latency as there is no additional cost of running the
+protocol. However, in some case it is possible for the *primary*
+to serve *stale responses*. Let's consider the following case:
+
+![Stale responses](../images/vr-paper/read-on-primary.gif)
+
+An ensemble with three replica nodes (`R1`, `R2`, `R3`) and `R2` is
+the current *primary*.  A bunch of clients are connected to the
+primary and issuing requests. Requests manipulate a set of named
+registers. The current value of the register `a` is `1`.  At a certain
+point a partition occur which isolates the primary (`R2`) from the
+rest of the ensemble and from most of the clients. Once the *view
+change protocol* kicks in replica `R3` will be elected as a new
+primary, and clients will reconnect to the new primary.
+
+At this point one of the clients could request a change of the
+registry `a = 2` and the change would succeed because a *quorum* of
+replica nodes is available (`R1` and `R3`).
+
+In the meanwhile the old primary (`R2`) is unaware of the change to
+the register `a` because the partition is still isolating
+communications.  Therefore is not even aware that a new primary
+replica has been selected and it is no more the current primary.
+
+An unfortunate client which is in the side side of the partition
+as the primary might still be able to talk to the old primary.
+In this case if the client if requesting the current value of
+register `a` it will get a stale value.
+
+To avoid this problem and make read-only requests possible to be
+served unilaterally by the primary we can make the use of **leases**.
+*A primary can only serve read-only requests without running the
+protocol and consulting with the other replicas if and only if, its
+lease is not expired.* When the lease expires, the primary must run
+the protocol and get the grant for a new lease which will ensure the
+view hasn't changed in the meantime.  In case of a partition, the
+ensemble will have to wait for lease to expire before to trigger a
+view-change and select a new primary.
+
 
 
 ---
