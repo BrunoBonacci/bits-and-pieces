@@ -597,6 +597,37 @@ view hasn't changed in the meantime.  In case of a partition, the
 ensemble will have to wait for lease to expire before to trigger a
 view-change and select a new primary.
 
+## Read-only requests on other replicas
+
+In high request volume system, where the number of read requests are
+much higher than the write requests, and if clients systems can accept
+stale reads (eventually consistent reads), then read-only requests
+can be made directly to the follower replicas. It is a effective
+way to reduce the load on the Primary and scale out the reads
+across all replicas. The primary is always handling the writes.
+
+In this situations it might be useful to track causality of
+client requests when a client makes a write followed by a read of the
+same (read your own writes).  Causality can be achieved by tracking
+the operation number `op-num` for a client write request and
+propagating back this information to the client. Clients interested in
+causal ordering can issue a read request to a follower replica stating
+the `op-num`. In this case the replica knows that it must respond to
+that request only after it advanced its `commit-num` past the
+request's `op-num`.
+
+![Stale responses](../images/vr-paper/read-on-follower.gif)
+
+For example the client is connecting to the primary and ask for a
+write operation such as a registry increment (`write a = a + 1`), the
+primary will process the request as usual, but along with the response
+it will communicate the operation number (`op-num`) for this request.
+The client records the `op-num` and it uses to make subsequent
+requests to the follower replicas for read-only request. The replica,
+if it hasn't processed the operation in the client request `op-num` it
+will have to wait until it the primary communicate that it is safe to
+do so and then reply.
+
 
 
 ---
