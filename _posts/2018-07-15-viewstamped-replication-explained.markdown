@@ -628,7 +628,7 @@ if it hasn't processed the operation in the client request `op-num` it
 will have to wait until it the primary communicate that it is safe to
 do so and then reply.
 
-## Ensemble reconfiguration.
+## Ensemble reconfiguration
 
 As seen so far, each node needs to be known to the others for the
 protocol to work correctly.  However, modern systems, especially in a
@@ -670,6 +670,37 @@ the `status = transitioning`. The `<START-EPOCH>` contains the new
 `epoch-num` the primary `op-num` and both: the old and new
 configuration.
 
+When the new replicas receive the `<START-EPOCH>` message they update
+the configuration taking `old-config` and `new-config` from the
+message itself, they reset the `view-num` to zero and set their
+`status = transitioning`.  If the new replica are missing data in
+their `op-log` it will issue a `<GET-STATE>` request to the old
+replicas. Once the new replica is up to date, then it sets its `status
+= normal`, send a `<EPOCH-STARTED>` with the new `epoch-num` and its
+identity to the old group, and finally, the new primary will start to
+accept client requests.
+
+This protocol extension allows to control the size of the ensemble
+for both: sizing up and sizing down. Additionally it can be used to
+replace a defective machine or also to migrate the entire cluster
+to a new set of more powerful machines.
+
+# Conclusions
+
+As we seen the Viewstamped Replication algorithm is fairly simple
+consensus algorithm and quite interesting replication protocol.  It is
+quite simple to understand and, together with the many optimisations
+proposed, it can be implemented efficiently for real world
+application.  Since it operates only on the interactions between
+replicas and clients it can be used as a "*library*" wrapper atop an
+existing system rendering the system distributed, high available and
+strictly consistent.  For example it possible to take a single node
+file system and turn it into a distributed high available file system,
+which it was the initial motivation of the viewstamped replication
+protocol in first place. Moreover it could be used to wrap
+communications of systems such as Redis and Memcache and turn the
+single node database into a distributed, fault tolerant, high
+available and strictly consistent cache.
 
 ---
 
