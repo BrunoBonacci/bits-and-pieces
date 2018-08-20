@@ -628,6 +628,47 @@ if it hasn't processed the operation in the client request `op-num` it
 will have to wait until it the primary communicate that it is safe to
 do so and then reply.
 
+## Ensemble reconfiguration.
+
+As seen so far, each node needs to be known to the others for the
+protocol to work correctly.  However, modern systems, especially in a
+cloud environment, tend to change frequently their ensemble
+configuration. Maybe as a response to the increasing or decreasing of
+load (elastically scalable systems), or just as a consequence of
+operational necessities (hardware replacement, network reconfiguration
+etc).
+
+To face this increasingly common requirement the authors proposed a
+protocol extension to allow a reconfiguration of the ensemble. With
+this extension is possible to add, remove, or replace some or all
+nodes.  The only limit is that the minimum allowed number of nodes is
+three, below this limit is not possible to achieve a quorum.
+
+In order to support reconfiguration the replicas have to track
+additional properties. A monotonically increasing number called
+`epoch-num` tracks every reconfiguration, a property called
+`old-config` holds the previous configuration (list of nodes IPs,
+names, and IDs). Finally a new status called `transitioning` is used
+to mark when a reconfiguration is in progress.
+
+A special client, typically with admin rights, will issue a
+`<RECONFIGURATION>` request. The request includes the current
+`epoch-num`, the `client-id`, the `request#` and the `new-config` with
+the list of all ensemble nodes which is expected to replace the
+current configuration.
+
+The request will be sent to the primary and processed as a normal
+request.  However, as soon as a `<RECONFIGURATION>` request is
+received by the primary it will stop accepting new client's requests.
+The other replicas will process the request as usual and send a
+`<PREPARE-OK>` message back to the primary. Once the primary receives
+a quorum of `<PREPARE-OK>` responses it will increase the `epoch-num`
+and send a `<COMMIT>` message to all replicas.  At this point it sends
+a `<START-EPOCH>` to all new replicas (all the replicas which are part
+of the new configuration but not of the old configuration) and it sets
+the `status = transitioning`. The `<START-EPOCH>` contains the new
+`epoch-num` the primary `op-num` and both: the old and new
+configuration.
 
 
 ---
