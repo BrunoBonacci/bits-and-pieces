@@ -29,7 +29,7 @@ after the original paper. Therefore most of the content here will be
 driven from the more 2012 paper.
 
 
-![viewstamped replication](../images/vr-paper/PWL-ViewstampedReplication.001.png)
+![viewstamped replication](../images/vr-paper/viewstamped-papers.png)
 
   * Paper links:
     - *Viewstamped Replication: A New Primary Copy method to Support Highly-Available Distributed Systems, B. Oki, B. Liskov, (1988)* <br/>
