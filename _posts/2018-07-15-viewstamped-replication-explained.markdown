@@ -10,44 +10,43 @@ author:
   image: bb.png
 ---
 
-Viewstamped Replication (*VR* for short) is one of the earliest
-consensus algorithm for distributed systems, it is designed around the
-replication of state machine's operation log and it can be efficiently
-implemented for modern systems. The revisited paper offers a number of
+Viewstamped Replication is one of the earliest consensus algorithms
+for distributed systems. It is designed around the log replication
+concept of state machines and it can be efficiently implemented for
+modern systems. The revisited version of the paper offers a number of
 improvements on the algorithm from the original paper which both:
-simplifies the algorithm and makes more suitable for high volume
+simplifies it and makes it more suitable for high volume
 systems. The original paper was published in 1988 which is ten years
-before the [Paxos
-algorithm](https://lamport.azurewebsites.net/pubs/lamport-paxos.pdf)
-was published.
+before the Paxos algorithm [^4] was published.
 
 I will explain how the protocol works in detail covering as well a
 number of optimizations which are described in the papers. The
 "revisited" version offers a simplified version of the protocol with
-improvements which were made by the authors in later works published
+improvements which were made by the authors in later works and published
 after the original paper. Therefore most of the content here will be
 driven from the more 2012 paper.
 
 
-![viewstamped replication](../images/vr-paper/viewstamped-papers.png)
+![viewstamped replication](/images/vr-paper/viewstamped-papers.png)
 
   * Paper links:
-    - *Viewstamped Replication: A New Primary Copy method to Support Highly-Available Distributed Systems, B. Oki, B. Liskov, (1988)* <br/>
-    http://pmg.csail.mit.edu/papers/vr.pdf
-    - *Viewstamped Replication Revisited, B. Liskov, J.Cowling (2012)* <br/>
-    http://pmg.csail.mit.edu/papers/vr-revisited.pdf
+    - *Viewstamped Replication: A New Primary Copy method to Support Highly-Available Distributed Systems, B. Oki, B. Liskov, (1988)* [^1] <br/>
+    [http://pmg.csail.mit.edu/papers/vr.pdf](http://pmg.csail.mit.edu/papers/vr.pdf)
+    - *Viewstamped Replication Revisited, B. Liskov, J.Cowling (2012)* [^2] <br/>
+    [http://pmg.csail.mit.edu/papers/vr-revisited.pdf](http://pmg.csail.mit.edu/papers/vr-revisited.pdf)
+    - *Viewstamped Replication presentation at PapersWeLove London* [^3]
 
 ## What is "Viewstamped Replication"?
 
 It is a replication protocol. It aims to guarantee consistent view
-over replicated data.  It is a “consensus algorithm”. To provide
+over replicated data.  And it is a “consensus algorithm”. To provide
 consistent view over replicated data, replicas must agree on
 replicated state.
 
 It is designed to be a pluggable protocol which works on the
-communication layer between your clients and the servers as well as
-between servers themselves.  The idea is that you can take a non
-distributed system and by using this replication protocol turn a
+communication layer between the clients and the servers and
+between the servers themselves.  The idea is that you can take a non
+distributed system and using this replication protocol you can turn a
 single node system into a high-available, fault tolerant distributed
 system.
 
@@ -57,10 +56,10 @@ of the network. Messages can be dropped, reordered or arbitrarily
 delayed, therefore protocol must account for it and allow requests to
 be replayed if necessary without causing duplication in the system.
 *Redundancy in space* is generally achieved via adding redundant
-copies in different machine with different fault-domain isolation,
-the aim is to recover from a node failure, whether is a system crash
-or a hardware failure, the system must be able to continue normal
-operation within certain limits.
+copies in different machine with different fault-domain isolation.
+the aim is to be able to stay in operation in face of a node failure,
+whether is a system crash or a hardware failure, the system must be
+able to continue normal operation within certain limits.
 
 Together, the *redundancy in time and space* provide the ability to
 tolerate and recover from temporary network partitions, systems
@@ -69,7 +68,7 @@ crashes, hardware failure and a wide range of network related issues.
 However the system can only tolerate a number of failures depending on
 the cluster (or **ensemble** size). In particular to tolerate 𝑓
 failures it requires an ensemble of `2𝑓 + 1` replicas. The type of
-failures that the protocol can tolerate are **non Byzantine failures** [^1]
+failures that the protocol can tolerate are **non Byzantine failures** [^5]
 which means that all the nodes in the ensemble will be either in a
 working state, or in a failed state or simply isolated. However, every
 node in the system will not deviate from the protocol and it will not
@@ -83,7 +82,7 @@ quorum with less than 3 nodes, therefore the minimum ensemble size is
 
 ## Replicated State Machines
 
-Viewstamped Replication is based on the *State Machine Replication* concept.
+Viewstamped Replication is based on the *State Machine Replication* concept [^6].
 A State Machine has an *initial state* and a *operation log*. The idea is
 that if you apply the ordered set of operation in the operation log to the
 initial state you will end up always with the same final state, *given that
@@ -93,7 +92,7 @@ Therefore, if we replicate the initial state and the operation log into
 other machines and repeat the same operations the final state on all the
 machines will be same.
 
-![Replicated State Machines](../images/vr-paper/vr-replicated-stm.gif)
+![Replicated State Machines](/images/vr-paper/vr-replicated-stm.gif)
 
 It is crucial that the *order of operations is preserved* as
 operations are not required to be commutative. Additionally *all
@@ -107,7 +106,8 @@ will cause the replica state to diverge.
 
 The objective of Viewstamped Replication is to ensure that there is a
 strictly consistent view on the operation log. In other words is
-ensures that all replicas agree on which operations are in the log.
+ensures that all replicas agree on which operations are in the log
+and their exact order.
 
 
 ## Anatomy of a Replica
@@ -115,7 +115,7 @@ ensures that all replicas agree on which operations are in the log.
 The ensemble or cluster is made of replica nodes. Each replica is
 composed of the following parts.
 
-![anatomy of a replica](../images/vr-paper/anatomy.png)
+![anatomy of a replica](/images/vr-paper/anatomy.png)
 
 The operation log (`op-log`) is a (mostly) append only sequence of
 operations.  Operations are applied against the current state which
@@ -127,11 +127,10 @@ to an external system you have to ensure the operation is applied only
 once by the use of transactional support or by making operation
 *idempotent* so that multiple application of the same operation won't
 produce duplication in the target system.  Each operation in the
-operation-log has a positional identifier which is the
-`operation-number` which is a monotonically increasing
-number.
+operation-log has a positional identifier which is a monotonically
+increasing number.
 
-The last inserted operation is the high water mark for the operation
+The last inserted operation number is the high water mark for the operation
 log and it is recorded as the `op-num` which is a monotonically
 increasing number as well. It identifies which operation has been
 already received and it is used in parts of the protocol.
@@ -139,7 +138,7 @@ already received and it is used in parts of the protocol.
 Operations in the `op-log` are appended first, then shared with other
 replicas and once there is a confirmation that enough replicas have
 received the operation then it is actually executed. We will see how
-this process works in mode details later. The `commit-num` represents
+this process works in more details later. The `commit-num` represents
 the number of the last operation which was executed in the replica. It
 also implies that all the previous operations have been executed as
 well. `commit-num` is a monotonically increasing number.
@@ -163,16 +162,15 @@ the replicas to communicate with other replicas therefore
 they must know how to contact the other nodes.
 
 The `client-table` is used to keep track of client's requests.
-Clients are identified by a unique id, and each client can only
-make one request at the time. Since communication is considered
-unreliable, clients can re-issue the same request without the
-risk of duplication in the system. Every client request
-has a monotonically increasing number which identify the request
-of a particular client. Each time the primary receives a client
-requests it add the request to the client table. If the client
-re-sends the same requests because didn't receive the response
-the primary can verify that the request was already processed and
-send the cached response.
+Clients are identified by a unique id, and each client can only make
+one request at the time. Since communication is assumed to be
+unreliable, clients can re-issue the last request without the risk of
+duplication in the system. Every client request has a monotonically
+increasing number which identify the request of a particular
+client. Each time the primary receives a client requests it add the
+request to the client table. If the client re-sends the same requests
+because didn't receive the response the primary can verify that the
+request was already processed and send the cached response.
 
 *For brevity, the pictures which will follow will omit some details*.
 
@@ -183,19 +181,19 @@ presented in the paper in its simplest form first.  Then the paper
 goes on describing a number of optimisations which do not change the
 basic structure of the protocol but make it efficient and practical to
 implement for real world application.  Efficiency is a major concern
-throughout the papers as the authors were building real-world systems.
+throughout both papers as the authors were building real-world systems.
 
-### Client requests handling.
+### Client requests handling
 
 In this section we are going to see how a client request is processed
 and the data replicated. We are going to see, in details, how the protocol
 ensures that at least a quorum of replicas acknowledges the request
 before executing the request.
 
-![client request processing](../images/vr-paper/client1.gif)
+![client request processing](/images/vr-paper/client1.gif)
 
-Clients have a unique identifier (`client-id`), they communicate only
-with the primary. If a client contacts a replica which is not the
+Clients have a unique identifier (`client-id`), and they communicate
+only with the primary. If a client contacts a replica which is not the
 primary, the replica drops the requests, and returns an error message
 to the client advising it to connect to the primary.  Each client can
 only send one request at the time, and each request has a request
@@ -220,8 +218,8 @@ log (`op-log`) and it update the `client-table` with the new request.
 Then it needs to notify all the replicas about the new request, so it
 creates a `<PREPARE>` message which contains: the current view number
 (`view-num`), the operation's `op-num`, the last commit number
-(`commit-num`), and the `message` which is the client request, and it
-sends the message to all the replicas.
+(`commit-num`), and the `message` which is the client request itself,
+and it sends the message to all the replicas.
 
 When a replica receives a `<PREPARE>` request, it first check whether
 the view number is the same `view-num`, if its view number is
@@ -236,7 +234,7 @@ then it means that the other replica need to get up-to-date, so it
 drop the message.  Finally if the `view-num` is the same, then it
 looks at the `op-num` in the message. The `op-num` needs to be
 *strictly consecutive*.  If there are gaps it means that this replica
-missed one or more `<PREPARE>` messages, do it drops the message and
+missed one or more `<PREPARE>` messages, so it drops the message and
 it initiate a recovery with a state transfer.  If the `op-num` is
 *strictly consecutive* then it increment its `op-num`, append the
 operation to the `op-log` and update the client table.
@@ -270,7 +268,7 @@ they need confirmation from the primary that it is safe to do so.
 
 This can happen in two ways.
 
-![client request processing](../images/vr-paper/client2.gif)
+![client request processing](/images/vr-paper/client2.gif)
 
 Let's assume that the same client or a new client comes along and
 makes a new request.  The client will create a `<REQUEST>` message and
@@ -287,14 +285,14 @@ operation number append to the `op-log` and update the client table,
 then it sends a `<PREPARE-OK>` to the primary for the operation it
 received.
 
-However the `<PREPARE>` message also contained the `commit-num` which
-showed that the primary has now executed the operation against its
-state and it is notifying the replicas that it is safe to do so as
-well. So the replicas will perform all requests in their `op-log`
-between the last `commit-num` and the `commit-num` in the `<PREPARE>`
-message **strictly following the order of operations** and advance its
-`commit-num` as well. At this point both, primary and replicas have
-performed the *committed* operations in their state.
+However the `<PREPARE>` message from the primary also contained the
+`commit-num` which showed that the primary has now executed the
+operation against its state and it is notifying the replicas that it
+is safe to do so as well. So the replicas will perform all requests in
+their `op-log` between the last `commit-num` and the `commit-num` in
+the `<PREPARE>` message **strictly following the order of operations**
+and advance its `commit-num` as well. At this point both, primary and
+replicas have performed the *committed* operations in their state.
 
 So we seen how the primary uses the `<PREPARE>` message to inform
 replicas about new operations as well as operations which are now safe
@@ -305,7 +303,7 @@ receive a new client request within a certain time then it will create
 a `<COMMIT>` message to inform replicas about which operations can now
 be performed.
 
-![client request processing](../images/vr-paper/client3.gif)
+![client request processing](/images/vr-paper/client3.gif)
 
 The `<COMMIT>` message will only contain the current view number
 (`view-num`) and the last committed operation (`commit-num`).  When a
@@ -339,8 +337,8 @@ etc. ViewStamped Replication takes a completely different approach. It
 uses a **deterministic function** over a fix property of the replica
 nodes, something like a unique identifier or IP address.
 
-For example the nodes IP addresses don't change you could use the
-`sort` function which given a list of nodes UPS will return a
+For example, if the replica nodes IP addresses don't change you could
+use the `sort` function which given a list of nodes IPs will return a
 deterministic sequence of nodes.  The ViewStamped Replication
 algorithm simply uses the sorted list of IPs to determine who is the
 next primary node, and *in round-robin fashion* all nodes will, in
@@ -357,17 +355,17 @@ For example if you have a three nodes cluster with the following IP addresses
 10.5.2.28           10.5.3.12  (3)
 ```
 
-Therefore the node `10.5.1.20` will be the first primary, and
+The node `10.5.1.20` will be the first primary, and
 everybody knows that it will be the first. When that node dies or is
 partitioned away from the rest of the cluster, the next node to become
 the primary will be the `10.5.2.28` followed by `10.5.3.12` and then
 starting from the beginning again.
 
-The protocol takes care of making sure that in the event that the node
-who is set to be the next primary, somehow, has fallen behind and it
-is not the most up-to-date, it will be able to gather the latest
-information from the other nodes and ensure that it is ready for the
-job. We will see this in mode details in this section.
+The protocol ensures that if the node who is set to be the next
+primary, somehow, has fallen behind and it is not the most up-to-date,
+it will be able to gather the latest information from the other nodes
+and get ready for the job. We will see this in more details in this
+section.
 
 
 #### The view change
@@ -375,8 +373,8 @@ job. We will see this in mode details in this section.
 Let's start with a working cluster. Replicas `R1` to `R5` are all up
 and running, `R1` is the first primary node, followed by `R2` and so
 on. Since ensembles are formed by `2𝑓 + 1` nodes, this cluster can
-survive and continue processing requests in the event 2 nodes are
-failed.
+survive and continue processing requests in the face of two failed
+nodes.
 
 `R1` is currently accepting client's requests and those are handled as
 seen earlier. Therefore for each client request a `<PREPARE>` message
@@ -384,7 +382,7 @@ is sent to all replicas and they reply with a
 `<PREPARE-OK>`. `<COMMIT>` messages are also used to signal which
 operations are committed by the primary.
 
-![view change](../images/vr-paper/view-change.gif)
+![view change](/images/vr-paper/view-change.gif)
 
 Let's assume that the primary `R1` crashes or is isolated from the
 rest of the cluster.  No more `<PREPARE>` or `<COMMIT>` messages will
@@ -452,10 +450,9 @@ In this case it will set its `status` to `recovery` and issue a
 `<GET-STATE>` request to any of the other replicas. The `<GET-STATE>`
 will contains its current values of the `view-num`, `op-num` and
 `commit-num` together with its identity. The `<GET-STATE>` message is
-the same message used by the replicas when the fall behind and their
-request all the messages they missed.  The receiving replica of the
-`<GET-STATE>` will respond only if its `status` is `normal` and it
-will check the `view-num` value contained in the message.
+the same message used by the replicas to get up to date when the fall
+behind.  The replica who receives the `<GET-STATE>` message will only
+respond if its `status` is `normal`.
 
 If the `view-num` in the `<GET-STATE>` message is the same as its
 `view-num` it means that the requesting node just fell behind, so it
@@ -468,7 +465,7 @@ means that the node was in a partition during a view change.  In this
 case it will prepare a `<NEW-STATE>` message with new `view-num`, its
 `commit-num` and its `op-num` and the portion of the `op-log` between
 the `commit-num` in the `<GET-STATE>` this time and its `op-num`, this
-is because some operation in the minority group might not have
+is because some operations in the minority group might not have
 survived the view-change.
 
 This is concludes the discussion about the ViewStamped Replication
@@ -479,12 +476,12 @@ how the protocol design accounts for unreliable network and allows for
 any message to be dropped, delayed or reordered and still work
 correctly.
 
-## Protocol optimisations.
+## Protocol optimisations
 
 Some of the limitations described earlier were imposed to allow to
 focus the discussion over the protocol correctness and clarity.  In
 this section we'll see how some of the optimisations proposed by the
-authors makes this protocol not only realistic to implement for a real
+authors make this protocol not only realistic to implement for a real
 world system, but also efficient and practical.
 
 
@@ -492,11 +489,11 @@ world system, but also efficient and practical.
 
 While the protocol as described above doesn't require the internal
 replica state to be persisted to work properly you can store the state
-in a durable storage do speed up crash recovery. In fact in a large
+in a durable storage to speed up crash recovery. In fact in a large
 system the operation log (`op-log`) could become, over time, quite
 large. It would be unreasonable and ineffective to keep the entire
-operation log in memory only. Upon a crash, or when a replica is
-restarted will require to get a copy of the `op-log` from another
+operation log only in memory. Upon a crash, or when a replica is
+restarted it will require to get a copy of the `op-log` from another
 replica (via `<GET-STATE>`) and if the replica has to transfer
 terabytes of data the operation could take a long time.
 
@@ -509,7 +506,7 @@ tail of the operation log since its last committed operation
 Since the persistent state is not required to run the protocol
 correctly, then the implementer can make design decisions based on the
 efficient use of the storage. For example it could decide to `fsyinc`
-only when you have enough changes to fill a buffer, as supposed to
+only when there are enough changes to fill a buffer, as supposed to
 *fsync-ing* on every request which it would be slow and inefficient.
 Additionally the durability of the state could be managed completely
 asynchronously from the protocol execution.
@@ -519,10 +516,10 @@ asynchronously from the protocol execution.
 Running the protocol has a cost. As we seen the primary has to wait
 for a _quorum_ of nodes to respond on every `<PREPARE>` request before
 executing the client request. In a large cluster, as the number of
-nodes increases it increases the number of nodes that the primary has
-to wait for a response and it increases the likelihood the at one
-being slower and having to wait for longer. In such cases we can
-divide the ensemble into *active replicas* and *witness replicas*.
+nodes increases, it also increases the number of nodes that the
+primary has to wait for a response and it increases the likelihood the
+at one being slower and having to wait for longer. In such cases we
+can divide the ensemble into *active replicas* and *witness replicas*.
 
 Active replicas account for `𝑓 + 1` nodes which run the full protocol
 and keep the state. The *primary* is *always* an active replica. The
@@ -544,22 +541,23 @@ whichever comes first, and then send the batch in a single `<PREPARE>`
 message.
 
 The same strategy could be applied on the client side for batching
-client's requests.
+client's requests, given that the client table is adjusted to
+accommodate a batch of requests.
 
-## Fast read-only requests on Primary
+### Fast read-only requests on Primary
 
 In the general definition of the protocol, read-only requests, which
-do not alter the state are server via the normal request processing.
+do not alter the state are served via the normal request processing.
 However since read requests do not need to survive a partition, they
 could be served *unilaterally* by the *primary* without contacting the
-replicas.
+other replicas.
 
 The advantage of this optimisation is that read requests could benefit
 of shorter latency as there is no additional cost of running the
 protocol. However, in some case it is possible for the *primary*
 to serve *stale responses*. Let's consider the following case:
 
-![Stale responses](../images/vr-paper/read-on-primary.gif)
+![Stale responses](/images/vr-paper/read-on-primary.gif)
 
 An ensemble with three replica nodes (`R1`, `R2`, `R3`) and `R2` is
 the current *primary*.  A bunch of clients are connected to the
@@ -579,10 +577,10 @@ the register `a` because the partition is still isolating
 communications.  Therefore is not even aware that a new primary
 replica has been selected and it is no more the current primary.
 
-An unfortunate client which is in the side side of the partition
-as the primary might still be able to talk to the old primary.
-In this case if the client if requesting the current value of
-register `a` it will get a stale value.
+An unfortunate client which is in the same side of the partition as
+the old primary (`R2`) might still be able to talk to the old primary.
+In this case if the client is requesting the current value of register
+`a`, it will get a stale value.
 
 To avoid this problem and make read-only requests possible to be
 served unilaterally by the primary we can make the use of **leases**.
@@ -591,41 +589,41 @@ protocol and consulting with the other replicas if and only if, its
 lease is not expired.* When the lease expires, the primary must run
 the protocol and get the grant for a new lease which will ensure the
 view hasn't changed in the meantime.  In case of a partition, the
-ensemble will have to wait for lease to expire before to trigger a
+ensemble will have to wait for the lease to expire before triggering a
 view-change and select a new primary.
 
-## Read-only requests on other replicas
+### Read-only requests on other replicas
 
-In high request volume system, where the number of read requests are
+In high request volume systems, where the number of read requests are
 much higher than the write requests, and if clients systems can accept
-stale reads (eventually consistent reads), then read-only requests
-can be made directly to the follower replicas. It is a effective
-way to reduce the load on the Primary and scale out the reads
-across all replicas. The primary is always handling the writes.
+stale reads (eventually consistent reads), then read-only requests can
+be made directly to the follower replicas. It is a effective way to
+reduce the load on the Primary and scale out the reads across all
+replicas. The primary is always handling the writes.
 
-In this situations it might be useful to track causality of
-client requests when a client makes a write followed by a read of the
-same (read your own writes).  Causality can be achieved by tracking
-the operation number `op-num` for a client write request and
+In this situations it might be useful to track causality of client
+requests, for example a client makes a write followed by a read of the
+same value (read your own writes).  Causality can be achieved by
+tracking the operation number `op-num` for a client write request and
 propagating back this information to the client. Clients interested in
 causal ordering can issue a read request to a follower replica stating
 the `op-num`. In this case the replica knows that it must respond to
 that request only after it advanced its `commit-num` past the
 request's `op-num`.
 
-![Stale responses](../images/vr-paper/read-on-follower.gif)
+![Stale responses](/images/vr-paper/read-on-follower.gif)
 
 For example the client is connecting to the primary and ask for a
 write operation such as a registry increment (`write a = a + 1`), the
 primary will process the request as usual, but along with the response
 it will communicate the operation number (`op-num`) for this request.
 The client records the `op-num` and it uses to make subsequent
-requests to the follower replicas for read-only request. The replica,
+requests to the follower replicas for a read-only request. The replica,
 if it hasn't processed the operation in the client request `op-num` it
 will have to wait until it the primary communicate that it is safe to
 do so and then reply.
 
-## Ensemble reconfiguration
+### Ensemble reconfiguration
 
 As seen so far, each node needs to be known to the others for the
 protocol to work correctly.  However, modern systems, especially in a
@@ -670,7 +668,7 @@ configuration.
 When the new replicas receive the `<START-EPOCH>` message they update
 the configuration taking `old-config` and `new-config` from the
 message itself, they reset the `view-num` to zero and set their
-`status = transitioning`.  If the new replica are missing data in
+`status = transitioning`.  If a new replica is missing data in
 their `op-log` it will issue a `<GET-STATE>` request to the old
 replicas. Once the new replica is up to date, then it sets its `status
 = normal`, send a `<EPOCH-STARTED>` with the new `epoch-num` and its
@@ -682,9 +680,9 @@ for both: sizing up and sizing down. Additionally it can be used to
 replace a defective machine or also to migrate the entire cluster
 to a new set of more powerful machines.
 
-# Conclusions
+## Conclusions
 
-As we seen the Viewstamped Replication algorithm is fairly simple
+As we seen the Viewstamped Replication algorithm is a fairly simple
 consensus algorithm and quite interesting replication protocol.  It is
 quite simple to understand and, together with the many optimisations
 proposed, it can be implemented efficiently for real world
@@ -695,14 +693,17 @@ strictly consistent.  For example it possible to take a single node
 file system and turn it into a distributed high available file system,
 which it was the initial motivation of the viewstamped replication
 protocol in first place. Moreover it could be used to wrap
-communications of systems such as Redis and Memcache and turn the
-single node database into a distributed, fault tolerant, high
-available and strictly consistent cache.
+communications of systems such as Redis and Memcache or any other
+non-distributed system and turn it into a distributed, fault tolerant,
+high available and strictly consistent system.
 
 ---
 
 Links and resources:
 
-   [^1]: [The Byzantine Generals Problem, Lamport](https://www.microsoft.com/en-us/research/publication/byzantine-generals-problem/)
-   [^2]: [Viewstamped Replication: A New Primary Copy method to Support Highly-Available Distributed Systems, B. Oki, B. Liskov, (1988)](http://pmg.csail.mit.edu/papers/vr.pdf)
-   [^3]: [Viewstamped Replication Revisited, B. Liskov, J.Cowling (2012)](http://pmg.csail.mit.edu/papers/vr-revisited.pdf)
+   [^1]: [Viewstamped Replication: A New Primary Copy method to Support Highly-Available Distributed Systems, B. Oki, B. Liskov, (1988)](http://pmg.csail.mit.edu/papers/vr.pdf)
+   [^2]: [Viewstamped Replication Revisited, B. Liskov, J.Cowling (2012)](http://pmg.csail.mit.edu/papers/vr-revisited.pdf)
+   [^3]: [Viewstamped Replication presentation at PapersWeLove London](https://www.youtube.com/watch?v=1EzNa-zAYS8)
+   [^4]: [Paxos algorithm - The Part-Time Parliament, Leslie Lamport (1998)](https://lamport.azurewebsites.net/pubs/lamport-paxos.pdf)
+   [^5]: [The Byzantine Generals Problem, L. Lamport (1982)](https://www.microsoft.com/en-us/research/publication/byzantine-generals-problem/)
+   [^6]: [Implementing Fault-Tolerant Services Using the State Machine Approach: A Tutorial, Schneider, Fred (1990)](https://www.cs.cornell.edu/fbs/publications/SMSurvey.pdf)
