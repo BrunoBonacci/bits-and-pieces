@@ -81,9 +81,6 @@ on. `𝑓 + 1` nodes is called **quorum**. It is not possible to create a
 quorum with less than 3 nodes, therefore the minimum ensemble size is
 3.
 
-TODO: add section with redis example which explain VR is a
-      communication wrapper.
-
 ## Replicated State Machines
 
 Viewstamped Replication is based on the *State Machine Replication* concept.
@@ -707,3 +704,5 @@ available and strictly consistent cache.
 Links and resources:
 
    [^1]: [The Byzantine Generals Problem, Lamport](https://www.microsoft.com/en-us/research/publication/byzantine-generals-problem/)
+   [^2]: [Viewstamped Replication: A New Primary Copy method to Support Highly-Available Distributed Systems, B. Oki, B. Liskov, (1988)](http://pmg.csail.mit.edu/papers/vr.pdf)
+   [^3]: [Viewstamped Replication Revisited, B. Liskov, J.Cowling (2012)](http://pmg.csail.mit.edu/papers/vr-revisited.pdf)
