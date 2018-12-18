@@ -6,7 +6,7 @@ categories: [development]
 tags: [Clojure]
 ---
 
-_Last update on 2018-05-15._
+_Updated to Clojure 1.10 - Last update on 2018-12-18._
 
 Destructuring is a simple, yet powerful feature of Clojure.
 There are several ways in which you can leverage destructuring
@@ -521,13 +521,13 @@ be slightly changed. Given the following map:
 ;; Smith - CEO
 
 
-;; Clojure 1.9
+;; Clojure 1.9 and subsequent releases
 ;; a default value might be provided
 (let [{:keys [lastname corporate/position]
        :or {position "Employee"}} contact]
   (println lastname "-" position))
 
-;; Clojure 1.8 or previous
+;; Clojure 1.8 or previous (doesn't work on CLJ 1.9+)
 ;; a default value might be provided
 (let [{:keys [lastname corporate/position]
        :or {corporate/position "Employee"}} contact]
@@ -648,7 +648,7 @@ bound and the compiler won't complain up to Clojure 1.8.
 In Clojure 1.9 this is fixed, and a compilation error will be raised.
 
 ``` clojure
-;; BAD DEFAULTS - Clojure 1.8
+;; BAD DEFAULTS - Clojure 1.8 (doesn't work on CLJ 1.9+)
 (defn connect-db [host ; mandatory parameter
                   & {:keys [port db-name username password]
                      :or   {:port     12345
@@ -664,13 +664,13 @@ In Clojure 1.9 this is fixed, and a compilation error will be raised.
 ;; notice all defaults are `nil`
 ```
 
-#### Defaults in a vector (fixed in 1.9)
+#### Defaults in a vector (fixed in 1.9+)
 
 If by mistake you put all defaults in a vector, again, no error from
 the compiler (up to Clojure 1.8) and no value will be bound.
 
 ``` clojure
-;; BAD DEFAULTS - Clojure 1.8
+;; BAD DEFAULTS - Clojure 1.8 (doesn't work on CLJ 1.9+)
 (defn connect-db [host ; mandatory parameter
                   & {:keys [port db-name username password]
                      :or   [port     12345
@@ -799,7 +799,8 @@ Updates:
   - 2017-05-13 - added destructuring of namespaced keys.
   - 2017-05-23 - added common mistakes / gotchas.
   - 2018-02-22 - added more gotchas
-  - 2018-05-15 - updated with Clojure 1.9 notes
+  - 2018-05-15 - updated to Clojure 1.9
+  - 2018-12-18 - updated to Clojure 1.10
 
 References:
 
