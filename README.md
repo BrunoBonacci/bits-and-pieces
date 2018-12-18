@@ -14,5 +14,8 @@ You can start locally with
 ``` bash
 bundle install
 bundle exec jekyll serve --watch
+
+# build static site
+bundle exec jekyll build
 ```
 Then you can browse [http://localhost:4000/](http://localhost:4000/).
