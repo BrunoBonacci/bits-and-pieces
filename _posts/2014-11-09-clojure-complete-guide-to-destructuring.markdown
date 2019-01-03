@@ -6,7 +6,7 @@ categories: [development]
 tags: [Clojure]
 ---
 
-_Updated to Clojure 1.10 - Last update on 2018-12-18._
+_Updated to Clojure 1.10 - Last update on 2019-01-03._
 
 Destructuring is a simple, yet powerful feature of Clojure.
 There are several ways in which you can leverage destructuring
@@ -607,6 +607,27 @@ powerful and declarative functions.
 
 ```
 
+Finally, namespaces keys can be destructured also by prepending the
+`:keys` keyword with the namespace they keys should be searched
+for. For example:
+
+``` clojure
+(def contact
+  {:firstname          "John"
+   :lastname           "Smith"
+   :age                25
+   :corporate/id       "LDF123"
+   :corporate/position "CEO"
+   :corporate/phone    "+1234567890"
+   :personal/mobile    "0987654321"})
+
+(let [{:keys [lastname]
+       :corporate/keys [phone]
+       :personal/keys [mobile]} contact]
+  (println "Contact Mr." lastname "work:" phone " mobile:" mobile))
+;; Contact Mr. Smith work: +1234567890  mobile: 0987654321
+```
+
 ### Destructuring "gotchas".
 
 Destructuring is a powerful tool to make your code simpler,
@@ -801,6 +822,7 @@ Updates:
   - 2018-02-22 - added more gotchas
   - 2018-05-15 - updated to Clojure 1.9
   - 2018-12-18 - updated to Clojure 1.10
+  - 2019-01-03 - added `:namespaced/keys` extraction.
 
 References:
 
