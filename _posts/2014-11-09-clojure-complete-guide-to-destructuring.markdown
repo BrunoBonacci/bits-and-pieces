@@ -813,7 +813,7 @@ that the code becomes clearer and event more readable.
 
 For this article I've used:
 
-  - Clojure 1.6.0, 1.7.0, 1.8.0 and 1.9.0
+  - Clojure 1.6.0, 1.7.0, 1.8.0, 1.9.0 and 1.10.0
 
 Updates:
 
