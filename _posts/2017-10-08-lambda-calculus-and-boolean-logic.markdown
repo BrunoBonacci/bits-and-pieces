@@ -185,7 +185,7 @@ boolean logic including something that behaves like `IF`.
 
 
 ``` clojure
-   IF = (λbxy. ((b TRUE FALSE) x y)
+   IF = (λbxy. (b x y)
 ```
 
 Where `b` is the result of the boolean logic predicate expression, `x`
@@ -245,7 +245,7 @@ So if we redefine everything using Clojure's lambdas we get something like:
 
    (def IF
      (fn [b x y]
-       ((b TRUE FALSE) x y)))
+       (b x y)))
 
    (IF (NOT FALSE)      "OK" "FAIL") ;;=> "OK"
    (IF (AND FALSE TRUE) "OK" "FAIL") ;;=> "FAIL"
@@ -279,7 +279,7 @@ into a thunk.
 
 ``` clojure
    (defmacro IF [b x y]
-       `(((~b TRUE FALSE) (fn [] ~x) (fn [] ~y))))
+     `((~b (fn [] ~x) (fn [] ~y))))
 
    ;; note: only the correct branch is evaluated.
    (IF TRUE (println "OK") (println "FAIL"))
