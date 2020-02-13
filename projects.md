@@ -7,8 +7,96 @@ permalink: /projects/
 Here some of my Open Source projects which you might be interested into.
 
 
+### safely
+
+![active](https://img.shields.io/badge/development-active-brightgreen)
+![stable](https://img.shields.io/badge/API-stable-brightgreen)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+
+`safely` is a Clojure Circuit-Breaker and retry library with a
+*declarative approach*.  The purpose of the library is to simply and
+effectively handle retries declaratively making sure that in a large
+distributed system these retries won't cause _self-similar mass
+behavior_ causing more harm than benefit. The circuit breaker
+is implemented fully in Clojure and offers good features for
+observability..
+
+  * **Github**: [https://github.com/BrunoBonacci/safely](https://github.com/BrunoBonacci/safely)
+
+---
+
+
+### μ/log
+
+![active](https://img.shields.io/badge/development-active-brightgreen)
+![evolving](https://img.shields.io/badge/API-evolving-green)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![check-it-out](https://img.shields.io/badge/should--I--use--it%3F-check--it--out%21-blue)
+
+`μ/log` is a Clojure library for structured event logging.
+Contrarily, most of the existing log library which focus on logging
+human readable messages, ***μ/log*** offers APIs to log events and
+data-points. Human readable messages often encode data which it is then
+sent to centralized logging systems and loads of effort is put to
+extract useful information out of the string message. ***μ/log***
+allow to send data directly and in a safe manner, enabling post
+processing and query aggregation in ways that other systems can't.
+
+On top of ***μ/log***, I'm also building ***μ/trace***, a micro-tracing library
+which allows to extends the basic event-logging capabilities with
+distributed tracing information.
+
+  * **Github**: [https://github.com/BrunoBonacci/mulog](https://github.com/BrunoBonacci/mulog)
+
+---
+
+### Optimus
+
+![inactive](https://img.shields.io/badge/development-inactive-inactive)
+![stable](https://img.shields.io/badge/API-stable-brightgreen)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+
+
+`Optimus` is a key-value store which I co-designed and developed while
+working at Trainline.com. It has customizable backends, it defaults to
+DynamoDB and it offers the ability to load millions of records and
+atomically publish them. This is used to publish Machine Learning
+models, or pre-computed values like recommendations in a way that the
+consumer will either see the new set of values or the old set of
+values, but never some values from two different partial updates. It
+provides also APIs to quickly and atomically rollback to a previous
+published version in case you realize that the new Machine Learning
+model isn't performing as you expect.
+
+  * My extensions **Github**: [https://github.com/BrunoBonacci/optimus](https://github.com/BrunoBonacci/optimus)
+  * Published initially under **Github**: [https://github.com/trainline/optimus](https://github.com/trainline/optimus)
+
+---
+
+### where
+
+![active](https://img.shields.io/badge/development-active-brightgreen)
+![stable](https://img.shields.io/badge/API-stable-brightgreen)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+
+`where` is a small Clojure/ClojureScript library to write predicate
+functions which are easier to read and easier to compose.  It supports
+a number of built-in comparators which are `nil` safe and they support
+case insensitive checks.
+
+  * **Github**: [https://github.com/BrunoBonacci/where](https://github.com/BrunoBonacci/where)
+
+---
+
 ### Samsara
 
+![inactive](https://img.shields.io/badge/development-inactive-inactive)
+![stable](https://img.shields.io/badge/API-stable-inactive)
+![production](https://img.shields.io/badge/production-used-brightgreen)
+![hold-on](https://img.shields.io/badge/should--I--use--it%3F-Hold--on-orange)
 
 Samsara is a Real-Time analytics platform written in Clojure.
 
@@ -37,49 +125,36 @@ learning modules and to create a community behind the project.
 
   * **Github**: [https://github.com/samsara/samsara](https://github.com/samsara/samsara)
   * **Website**: [http://samsara-analytics.io/](http://samsara-analytics.io/)
+  * **Blog**: [Designing Samsara](http://blog.brunobonacci.com/2016/06/20/designing-samsara/)
 
 ---
 
-
-### Safely
-
-`safely` it's a Clojure Circuit-Breaker and retry library with a
-declarative approach.  The purpose of the library is to simply and
-effectively handle retries declaratively making sure that in a large
-distributed system these retries won't cause _self-similar mass
-behavior_ and causing more arm than benefit. The circuit breaker
-is implemented fully in Clojure and offers good features for
-observability..
-
-  * **Github**: [https://github.com/BrunoBonacci/safely](https://github.com/BrunoBonacci/safely)
-
----
-
-### Where
-
-`where` it's a small Clojure/ClojureScript library to write predicate
-functions which are easier to read and easier to compose.  It supports
-a number of built-in comparators which are `nil` safe and support case
-insensitive checks.
-
-  * **Github**: [https://github.com/BrunoBonacci/where](https://github.com/BrunoBonacci/where)
-
----
 
 ### clj-sophia
 
-An idiomatic Clojure driver for [Sophia
-DB](http://sophia.systems/). Sophia is RAM-Disk hybrid storage
-designed to provide best possible on-disk performance without
-degradation in time.  Sophia is an embedded key/value store which
-implements a LSM storage system. Very fast and fully ACID
-(Serialized Snapshot Isolation - SSI) transactional support..
+![inactive](https://img.shields.io/badge/development-inactive-inactive)
+![feature-complete](https://img.shields.io/badge/API-feature--complete-brightgreen)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+
+An idiomatic Clojure driver for [Sophia DB](http://sophia.systems/).
+Sophia is RAM-Disk hybrid storage designed to provide best possible
+on-disk performance without degradation in time.  Sophia is an
+embedded key/value store which implements a LSM storage system. Very
+fast and fully ACID (Serialized Snapshot Isolation - SSI)
+transactional support..
 
   * **Github**: [https://github.com/BrunoBonacci/clj-sophia](https://github.com/BrunoBonacci/clj-sophia)
 
 ---
 
 ### ring-boost
+
+![inactive](https://img.shields.io/badge/development-inactive-inactive)
+![mvp](https://img.shields.io/badge/API-mvp-yellow)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![check-it-out](https://img.shields.io/badge/should--I--use--it%3F-check--it--out%21-blue)
+
 
 A library to boost performances of Clojure web applications with
 off-heap serverside caching. Serverside caching is uniquely
@@ -95,9 +170,49 @@ can be completely customized to tailor your needs.
 ---
 
 
+### TrackIt!
+
+![maintenance-only](https://img.shields.io/badge/development-maintenance--only-yellow)
+![stable](https://img.shields.io/badge/API-stable-brightgreen)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![use-it](https://img.shields.io/badge/should--I--use--it%3F-Check%20%CE%BC%2Flog-blue)
+
+
+`TrackIt!` allows you to instrument your code and record useful metrics
+and publish those metrics to a number of backend systems for indexing
+and visualization, such as:
+
+  - Console
+  - Ganglia
+  - Graphite
+  - Statsd
+  - Infuxdb
+  - Reimann
+  - NewRelic
+  - AWS Cloudwatch
+  - Prometheus
+  - JMX Beans
+
+It is based on the popular [Dropwizard's Metrics](https://metrics.dropwizard.io/) library,
+with a Clojure idiomatic and developer friendly API.
+
+  * **Github**: [https://github.com/samsara/trackit](https://github.com/samsara/trackit)
+
+If you thinking to use this, maybe you should check
+[**`μ/log`**](https://github.com/BrunoBonacci/mulog) out first!
+
+---
+
+
 ### dragonfiles
 
-`dragonfiles` it's a Clojure tools to easily process files.  Most of
+![inactive](https://img.shields.io/badge/development-inactive-inactive)
+![mvp](https://img.shields.io/badge/API-mvp-yellow)
+![not-in-use](https://img.shields.io/badge/production-not--in--use-inactive)
+![hold-on](https://img.shields.io/badge/should--I--use--it%3F-Hold--on-orange)
+
+
+`dragonfiles` is a Clojure tools to easily process files.  Most of
 people are familiar with the Linux tool `awk`.  Although very powerful
 it lack of expressiveness.  I found myself to have hundreds of
 thousands of file to process and I was in the middle of deciding
@@ -111,7 +226,7 @@ file in input at once or line-by-line.  You can harness the power of
 Clojure together with the rich Java/Clojure libraries ecosystem in a
 command line environment.
 
-_`dragonfiles` is still work-in-progress_ but already usable.
+_`dragonfiles` is still work-in-progress_ but already usable if you really want.
 
   * **Github**: [https://github.com/BrunoBonacci/dragonfiles](https://github.com/BrunoBonacci/dragonfiles)
 
