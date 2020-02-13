@@ -27,6 +27,45 @@ observability..
 ---
 
 
+### 1Config
+
+![active](https://img.shields.io/badge/development-active-brightgreen)
+![stable](https://img.shields.io/badge/API-stable-brightgreen)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+
+**1Config is A tool and a library to manage application secrets and
+configuration safely and effectively.**
+
+Here some of the key-points and advantages:
+
+  * Easy way to retrieve and manage configuration for your AWS deployed services
+  * Compatible with AWS Lambdas as well
+  * AWS KMS envelope encryption for extra security (same as S3-SSE, EBS and RDS)
+  * Support for key-rotation
+  * Highly available (as available as DynamoDB + KMS)
+  * Support for multiple environments in the same AWS account
+  * Support for multiple services in the same environment
+  * Support for multiple concurrent versions of the same service
+  * Zero config approach (or at most 1 config `;-)`)
+  * *Anti-tampering checks for configuration entries* (entries can't be manipulated manually)
+  * Supports Clojure, Java, Groovy, and other JVM languages (more to come)
+  * Command line tool for managing changes to the configuration
+  * Graphical User interface for managing changes to the configuration
+  * Support for local development (outside AWS)
+  * Highly-configurable and secure authorization.
+
+It has a very strong security model and very a simple but powerful
+API.  Because it offers a Clojure and Java client you can read the
+configuration directly from your application without using
+intermediate storage such host filesystem, environment variables etc.
+*The best way to pass certificates to your applications.*
+
+  * **Github**: [https://github.com/BrunoBonacci/mulog](https://github.com/BrunoBonacci/mulog)
+
+---
+
+
 ### μ/log
 
 ![active](https://img.shields.io/badge/development-active-brightgreen)
