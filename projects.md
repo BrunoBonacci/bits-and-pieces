@@ -6,7 +6,6 @@ permalink: /projects/
 
 Here some of my Open Source projects which you might be interested into.
 
-
 ### safely
 
 ![active](https://img.shields.io/badge/development-active-brightgreen)
@@ -59,9 +58,11 @@ It has a very strong security model and very a simple but powerful
 API.  Because it offers a Clojure and Java client you can read the
 configuration directly from your application without using
 intermediate storage such host filesystem, environment variables etc.
-*The best way to pass certificates to your applications.*
+*The best way to pass certificates and other secrets to your
+applications. Best way to manage application configuration on AWS in
+general.*
 
-  * **Github**: [https://github.com/BrunoBonacci/mulog](https://github.com/BrunoBonacci/mulog)
+  * **Github**: [https://github.com/BrunoBonacci/1config](https://github.com/BrunoBonacci/1config)
 
 ---
 
@@ -242,6 +243,22 @@ If you thinking to use this, maybe you should check
 
 ---
 
+### Clojure meets GraalVM
+
+GraalVM is really exciting news for Clojure. Particularly the ability
+to build **native images**. In this project I've tried to collect all
+the info to build native-images for Clojure based projects.  Building
+complex projects in GraalVM's *native-image* can be quite challenging.
+Therefore, I've tried to take common libraries and build *hello-world*
+style projects and build them with GraalVM's *native-image* and
+document challenges, parameters to use and solution to common
+problems. If you are interested in native images for your Clojure
+projects this is a good place to start.
+
+  * **Github**: [https://github.com/BrunoBonacci/graalvm-clojure](https://github.com/BrunoBonacci/graalvm-clojure)
+
+---
+
 
 ### dragonfiles
 
@@ -253,17 +270,17 @@ If you thinking to use this, maybe you should check
 
 `dragonfiles` is a Clojure tools to easily process files.  Most of
 people are familiar with the Linux tool `awk`.  Although very powerful
-it lack of expressiveness.  I found myself to have hundreds of
-thousands of file to process and I was in the middle of deciding
-whether shell scripting or Hadoop based solution was going to solve
-the problem.  I wanted something easy as shell scripting, and not so
-heavy as Hadoop. So I decided to write a small tool to cover this
-middle ground where it would be too complex to develop `awk` scripts
-but not yet so big enough to move to a BigData solution.  The tool
-allow to easily define a processing function which is applied to every
-file in input at once or line-by-line.  You can harness the power of
-Clojure together with the rich Java/Clojure libraries ecosystem in a
-command line environment.
+it lack of expressiveness.  I found myself having to process several
+hundreds of thousands of small files and I was trying to decide
+whether it would have been better to build a shell-scripting solution
+or a Hadoop-based solution. I wanted something easy as shell
+scripting, and not so heavy as Hadoop. So I decided to write a small
+tool to cover this middle ground where it would be too complex to
+develop `awk` scripts but not yet so big enough to move to a BigData
+solution.  The tool allow to easily define a processing function which
+is applied to every file in input at once or line-by-line.  You can
+harness the power of Clojure together with the rich Java/Clojure
+libraries ecosystem in a command line environment.
 
 _`dragonfiles` is still work-in-progress_ but already usable if you really want.
 
