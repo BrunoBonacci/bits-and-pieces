@@ -1,4 +1,4 @@
-@import 'https://fonts.googleapis.com/css?family=Raleway:400,700|Roboto+Slab:300,400)';
+@import 'https://fonts.googleapis.com/css?family=Comfortaa:300,700|Roboto+Mono:300,400)';
 /* http://meyerweb.com/eric/tools/css/reset/
 	 v2.0 | 20110126
 	 License: none (public domain)
@@ -925,8 +925,9 @@ html {
 	max-height: 100%; }
 
 body {
-	font-family: "Raleway", sans-serif;
+	font-family: "Comfortaa", sans-serif;
 	font-size: 1em;
+	font-weight: lighter;
 	color: #666666; }
 
 ::selection {
@@ -953,7 +954,7 @@ h5,
 h5 {
 	margin-top: .8em;
 	margin-bottom: .4em;
-	font-family: "Roboto Slab", serif;
+	font-family: "Comfortaa", sans-serif;
 	font-weight: lighter;
 	color: #333333;
 	-webkit-font-smoothing: antialiased; }
@@ -995,7 +996,7 @@ blockquote {
 	background: #f8f8f8;
 	border: 1px solid #eeeeee;
 	border-radius: 3px;
-	font-family: "Roboto Slab", serif;
+	font-family: "Comfortaa", sans-serif;
 	font-weight: lighter;
 	font-style: italic;
 	font-size: 1.3em;
@@ -1022,8 +1023,9 @@ code {
 	background: #e8f2fb;
 	border: 1px solid #c9e1f6;
 	border-radius: 3px;
-	font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
-	font-size: .85em; }
+	font-family: 'Roboto Mono', Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+	font-weight: lighter;
+	/*font-size: .85em; */}
 
 pre {
 	margin-bottom: 1.3em;
@@ -1031,9 +1033,9 @@ pre {
 	background: #e8f2fb;
 	border: 1px solid #c9e1f6; */
 	border-radius: 3px;
-	font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+	font-family: 'Roboto Mono', Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+	font-weight: lighter;
 	font-size: .9em;
-	font-weight: normal;
 	line-height: 1.3em; }
 	pre code {
 		padding: 0;
@@ -1063,7 +1065,7 @@ pre {
 	color: #999999; }
 
 .intro {
-	font-family: "Roboto Slab", serif;
+	font-family: "Roboto Mono", serif;
 	font-size: 1.2em;
 	font-weight: lighter;
 	color: #999999; }
@@ -1196,7 +1198,7 @@ hr {
 	color: #FFF; }
 
 .panel-subtitle {
-	font-family: "Roboto Slab", serif;
+	font-family: "Roboto Mono", serif;
 	font-size: 1.2em;
 	font-weight: lighter;
 	letter-spacing: 3px;
