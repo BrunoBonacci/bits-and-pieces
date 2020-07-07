@@ -6,12 +6,14 @@ permalink: /projects/
 
 Here some of my Open Source projects which you might be interested into.
 
+
 ### safely
 
 ![active](https://img.shields.io/badge/development-active-brightgreen)
 ![stable](https://img.shields.io/badge/API-stable-brightgreen)
 ![production](https://img.shields.io/badge/production-in--use-brightgreen)
 ![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+![stars](https://img.shields.io/github/stars/BrunoBonacci/safely?style=social)
 
 `safely` is a Clojure Circuit-Breaker and retry library with a
 *declarative approach*.  The purpose of the library is to simply and
@@ -32,6 +34,7 @@ observability..
 ![stable](https://img.shields.io/badge/API-stable-brightgreen)
 ![production](https://img.shields.io/badge/production-in--use-brightgreen)
 ![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+![stars](https://img.shields.io/github/stars/BrunoBonacci/1config?style=social)
 
 **1Config is A tool and a library to manage application secrets and
 configuration safely and effectively.**
@@ -53,6 +56,7 @@ Here some of the key-points and advantages:
   * Graphical User interface for managing changes to the configuration
   * Support for local development (outside AWS)
   * Highly-configurable and secure authorization.
+  * Support for EDN, JSON, YAML, Java Properties and plain-text.
 
 It has a very strong security model and very a simple but powerful
 API.  Because it offers a Clojure and Java client you can read the
@@ -73,6 +77,7 @@ general.*
 ![evolving](https://img.shields.io/badge/API-evolving-green)
 ![production](https://img.shields.io/badge/production-in--use-brightgreen)
 ![check-it-out](https://img.shields.io/badge/should--I--use--it%3F-check--it--out%21-blue)
+![stars](https://img.shields.io/github/stars/BrunoBonacci/mulog?style=social)
 
 `μ/log` is a Clojure library for structured event logging.
 Contrarily, most of the existing log library which focus on logging
@@ -121,6 +126,7 @@ model isn't performing as you expect.
 ![stable](https://img.shields.io/badge/API-stable-brightgreen)
 ![production](https://img.shields.io/badge/production-in--use-brightgreen)
 ![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+![stars](https://img.shields.io/github/stars/BrunoBonacci/where?style=social)
 
 `where` is a small Clojure/ClojureScript library to write predicate
 functions which are easier to read and easier to compose.  It supports
@@ -131,12 +137,40 @@ case insensitive checks.
 
 ---
 
+### viooh-mirror
+
+![active](https://img.shields.io/badge/development-active-brightgreen)
+![stable](https://img.shields.io/badge/API-stable-brightgreen)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+![stars](https://img.shields.io/github/stars/BrunoBonacci/viooh-mirror?style=social)
+
+`viooh-mirror` is an Apache Kafka replication tool. It replicates
+selected topics from a source cluster into a destination cluster and
+it replicates associated schemas (from Schema-Registry) as well. It
+turns out that most of the replication tools available out there they
+either don't replicate the schemas or, if the do the don't preserve
+the ordering of the schemas as they appear in the source cluster.
+*Viooh-mirror* solves that problem. When it replicates a topic ensures
+that the destination subjects has all the same schemas in the same
+order.  This is a tool which I designed and contributed into the
+development while working on a Real-Time datalake solution. This
+solution was developed using *Continuous Chaos-Testing*, it is fairly
+robust and it has already replicated over **1 trillion messages**
+across a number of clusters.
+
+  * **Github**: [https://github.com/VIOOH/viooh-mirror](https://github.com/VIOOH/viooh-mirror)
+  * **My fork**: [https://github.com/BrunoBonacci/viooh-mirror](https://github.com/BrunoBonacci/viooh-mirror)
+
+---
+
 ### Samsara
 
 ![inactive](https://img.shields.io/badge/development-inactive-inactive)
 ![stable](https://img.shields.io/badge/API-stable-inactive)
 ![production](https://img.shields.io/badge/production-used-brightgreen)
 ![hold-on](https://img.shields.io/badge/should--I--use--it%3F-Hold--on-orange)
+![stars](https://img.shields.io/github/stars/samsara/samsara?style=social)
 
 Samsara is a Real-Time analytics platform written in Clojure.
 
@@ -176,6 +210,7 @@ learning modules and to create a community behind the project.
 ![feature-complete](https://img.shields.io/badge/API-feature--complete-brightgreen)
 ![production](https://img.shields.io/badge/production-in--use-brightgreen)
 ![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+![stars](https://img.shields.io/github/stars/BrunoBonacci/clj-sophia?style=social)
 
 An idiomatic Clojure driver for [Sophia DB](http://sophia.systems/).
 Sophia is RAM-Disk hybrid storage designed to provide best possible
@@ -194,6 +229,7 @@ transactional support..
 ![mvp](https://img.shields.io/badge/API-mvp-yellow)
 ![production](https://img.shields.io/badge/production-in--use-brightgreen)
 ![check-it-out](https://img.shields.io/badge/should--I--use--it%3F-check--it--out%21-blue)
+![stars](https://img.shields.io/github/stars/BrunoBonacci/ring-boost?style=social)
 
 
 A library to boost performances of Clojure web applications with
@@ -216,6 +252,7 @@ can be completely customized to tailor your needs.
 ![stable](https://img.shields.io/badge/API-stable-brightgreen)
 ![production](https://img.shields.io/badge/production-in--use-brightgreen)
 ![use-it](https://img.shields.io/badge/should--I--use--it%3F-Check%20%CE%BC%2Flog-blue)
+![stars](https://img.shields.io/github/stars/samsara/trackit?style=social)
 
 
 `TrackIt!` allows you to instrument your code and record useful metrics
@@ -238,12 +275,14 @@ with a Clojure idiomatic and developer friendly API.
 
   * **Github**: [https://github.com/samsara/trackit](https://github.com/samsara/trackit)
 
-If you thinking to use this, maybe you should check
+If you are thinking to use this, maybe you should check
 [**`μ/log`**](https://github.com/BrunoBonacci/mulog) out first!
 
 ---
 
 ### Clojure meets GraalVM
+
+![stars](https://img.shields.io/github/stars/BrunoBonacci/graalvm-clojure?style=social)
 
 GraalVM is really exciting news for Clojure. Particularly the ability
 to build **native images**. In this project I've tried to collect all
@@ -256,6 +295,23 @@ problems. If you are interested in native images for your Clojure
 projects this is a good place to start.
 
   * **Github**: [https://github.com/BrunoBonacci/graalvm-clojure](https://github.com/BrunoBonacci/graalvm-clojure)
+
+---
+
+### easy-subnet
+
+![stable](https://img.shields.io/badge/development-stable-brightgreen)
+![stable](https://img.shields.io/badge/API-stable-brightgreen)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![use-it](https://img.shields.io/badge/should--I--use--it%3F-Definitely-blue)
+![stars](https://img.shields.io/github/stars/BrunoBonacci/easy-subnet?style=social)
+
+`easy-subnet` is a command line tool for easily splitting a network
+range into subnets.  You can describe the desired network layout and
+`easy-subnet` will return subnet ranges and masks according to the
+desired layout. It will also provides a list of unused network ranges.
+
+  * **Github**: [https://github.com/BrunoBonacci/easy-subnet](https://github.com/BrunoBonacci/easy-subnet)
 
 ---
 
