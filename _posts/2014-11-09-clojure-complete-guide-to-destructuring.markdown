@@ -6,7 +6,7 @@ categories: [development]
 tags: [Clojure]
 ---
 
-_Updated to Clojure 1.10 - Last update on 2019-01-03._
+_Updated to Clojure 1.10.1 - Last update on 2019-07-23._
 
 Destructuring is a simple, yet powerful feature of Clojure.
 There are several ways in which you can leverage destructuring
@@ -813,7 +813,7 @@ that the code becomes clearer and event more readable.
 
 For this article I've used:
 
-  - Clojure 1.6.0, 1.7.0, 1.8.0, 1.9.0 and 1.10.0
+  - Clojure 1.6.0, 1.7.0, 1.8.0, 1.9.0, 1.10.0 and 1.10.1
 
 Updates:
 
@@ -823,6 +823,7 @@ Updates:
   - 2018-05-15 - updated to Clojure 1.9
   - 2018-12-18 - updated to Clojure 1.10
   - 2019-01-03 - added `:namespaced/keys` extraction.
+  - 2019-07-23 - updated to Clojure 1.10.1
 
 References:
 
