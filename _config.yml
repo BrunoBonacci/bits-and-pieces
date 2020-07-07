@@ -1,6 +1,6 @@
 # Site settings
 title: Bits and pieces
-description: 'Between bits and bytes and all other pieces.<br/>A tech blog about Clojure, BigData, and Software Architecture.'
+description: 'Between bits and bytes and all other pieces.<br/>A tech blog about Clojure, Software Architecture, and Distributed Systems'
 url: 'http://blog.brunobonacci.com'
 baseurl: '/'
 google_analytics: 'UA-51571233-1'
