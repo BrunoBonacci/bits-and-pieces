@@ -19,3 +19,11 @@ bundle exec jekyll serve --watch
 bundle exec jekyll build
 ```
 Then you can browse [http://localhost:4000/](http://localhost:4000/).
+
+
+## Docker start
+
+``` bash
+mkdir -p /tmp/vendor/bundle
+docker run --rm -v .:/srv/jekyll -v /tmp/vendor/bundle:/usr/local/bundle -p 4000:4000 -it jekyll/jekyll:3.8  jekyll serve --watch
+```

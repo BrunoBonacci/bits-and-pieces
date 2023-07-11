@@ -6,3 +6,4 @@ _site
 .DS_Store
 /_posts/flymd.html
 /_posts/flymd.md
+/vendor/
