@@ -7,6 +7,31 @@ permalink: /projects/
 Here some of my Open Source projects which you might be interested into.
 
 
+### μ/log
+
+![active](https://img.shields.io/badge/development-active-brightgreen)
+![evolving](https://img.shields.io/badge/API-evolving-green)
+![production](https://img.shields.io/badge/production-in--use-brightgreen)
+![check-it-out](https://img.shields.io/badge/should--I--use--it%3F-check--it--out%21-blue)
+![stars](https://img.shields.io/github/stars/BrunoBonacci/mulog?style=social)
+
+`μ/log` is a Clojure library for structured event logging.
+Contrarily, most of the existing log library which focus on logging
+human readable messages, ***μ/log*** offers APIs to log events and
+data-points. Human readable messages often encode data which it is then
+sent to centralized logging systems and loads of effort is put to
+extract useful information out of the string message. ***μ/log***
+allow to send data directly and in a safe manner, enabling post
+processing and query aggregation in ways that other systems can't.
+
+On top of ***μ/log***, I'm also building ***μ/trace***, a micro-tracing library
+which allows to extends the basic event-logging capabilities with
+distributed tracing information.
+
+  * **Github**: [https://github.com/BrunoBonacci/mulog](https://github.com/BrunoBonacci/mulog)
+
+---
+
 ### safely
 
 ![active](https://img.shields.io/badge/development-active-brightgreen)
@@ -67,32 +92,6 @@ applications. Best way to manage application configuration on AWS in
 general.*
 
   * **Github**: [https://github.com/BrunoBonacci/1config](https://github.com/BrunoBonacci/1config)
-
----
-
-
-### μ/log
-
-![active](https://img.shields.io/badge/development-active-brightgreen)
-![evolving](https://img.shields.io/badge/API-evolving-green)
-![production](https://img.shields.io/badge/production-in--use-brightgreen)
-![check-it-out](https://img.shields.io/badge/should--I--use--it%3F-check--it--out%21-blue)
-![stars](https://img.shields.io/github/stars/BrunoBonacci/mulog?style=social)
-
-`μ/log` is a Clojure library for structured event logging.
-Contrarily, most of the existing log library which focus on logging
-human readable messages, ***μ/log*** offers APIs to log events and
-data-points. Human readable messages often encode data which it is then
-sent to centralized logging systems and loads of effort is put to
-extract useful information out of the string message. ***μ/log***
-allow to send data directly and in a safe manner, enabling post
-processing and query aggregation in ways that other systems can't.
-
-On top of ***μ/log***, I'm also building ***μ/trace***, a micro-tracing library
-which allows to extends the basic event-logging capabilities with
-distributed tracing information.
-
-  * **Github**: [https://github.com/BrunoBonacci/mulog](https://github.com/BrunoBonacci/mulog)
 
 ---
 

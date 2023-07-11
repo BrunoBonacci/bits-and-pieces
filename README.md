@@ -27,3 +27,10 @@ Then you can browse [http://localhost:4000/](http://localhost:4000/).
 mkdir -p /tmp/vendor/bundle
 docker run --rm -v .:/srv/jekyll -v /tmp/vendor/bundle:/usr/local/bundle -p 4000:4000 -it jekyll/jekyll:3.8  jekyll serve --watch
 ```
+
+## Publish
+
+``` bash
+cp -r ./_site/* ../bits-and-pieces-site/
+# then commit and push
+```
