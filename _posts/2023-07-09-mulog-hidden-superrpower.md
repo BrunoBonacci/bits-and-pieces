@@ -17,7 +17,7 @@ author:
 > AWS policy for Terraform.
 >
 
-*Originally posted at: https://redefine.io/blog/mulog-hidden-superpower/*
+*Originally posted at: [https://redefine.io/blog/mulog-hidden-superpower/](https://redefine.io/blog/mulog-hidden-superpower/)*
 
 ### Intro
 
