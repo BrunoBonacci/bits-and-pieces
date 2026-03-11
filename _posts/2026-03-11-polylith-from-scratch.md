@@ -297,7 +297,7 @@ Your final root `./deps.edn` should look like this:
 
 ### 5b. Create `build.clj` at the workspace root
 
-Create the file `cat/build.clj`:
+Create the file `build.clj` under the workspace root:
 
 ```clojure
 (ns build
